@@ -4,26 +4,27 @@ A web application to manage final internships at Polytech.
 
 ## Requirements
 
-- A postgreSQL database
+- A PostgreSQL database
 - [Golang](https://golang.org/)
-- [GoDep](https://github.com/tools/godep) to handle the dependencies
-- [node.js](https://nodejs.org) to build the frontend
-- [gulp](http://gulpjs.com/) to manage installation workflow
+- [node.js](https://nodejs.org)
 
 ## Installation
-```Shell
-go get github.com/pierrre/gotestcover  
-go get github.com/tools/godep  
+
+In your `$GOPATH` (usually `$HOME/go`):
+```shell
+git clone https://github.com/emmvou/wints.git src/github.com/emmvou/wints
+cd src/github.com/emmvou/wints/; npm ci
+go install github.com/emmvou/wints
 ```
 
-In your `$GOPATH`:
-```Shell
-git clone https://github.com/emmvou/wints.git src/github.com/emmvou/wints # to get the source
-cd src/github.com/emmvou/wints/; godep restore # to restore the dependencies.
-go install github.com/emmvou/wints/wintsd # to build the executable.
+## Usage
+In the wints installation directory (`$GOPATH/src/github.com/emmvou/wints`):
+```shell
+wints
 ```
 
-## Usage of ./bin/wints:  
+### Parameters
+
 ```Shell
   -conf string  
         Wints configuration file (default "wints.conf")  
@@ -34,14 +35,7 @@ go install github.com/emmvou/wints/wintsd # to build the executable.
   -new-root string  
         Invite a root user  
 ```
-## Running
-- `wints` launches the daemon. For test purposes, it is preferable to launch it with the `--fakeMailer` option to prevent to send mails (they will be logged into logs/mailer... instead)
 
 ## Benchmarks, tests
 
 go test -x -v -tags=integration -bench BenchmarkInternships -cpuprofile=cpu.prof
-
-
-## Developement
-
-to run in development mode: `./dev.sh` --> server on https://localhost:8999
