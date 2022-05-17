@@ -1,5 +1,7 @@
 # Wints
 
+[![CI](https://github.com/emmvou/wints/actions/workflows/go.yml/badge.svg)](https://github.com/emmvou/wints/actions/workflows/go.yml)
+
 A web application to manage final internships at Polytech.
 
 ## Requirements
