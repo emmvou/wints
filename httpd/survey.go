@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/schema"
 )
 
 func (ed *HTTPd) survey(w http.ResponseWriter, r *http.Request) {

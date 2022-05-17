@@ -10,10 +10,10 @@ import (
 
 	"github.com/klauspost/compress/gzip"
 
-	"github.com/fhermeni/wints/config"
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/notifier"
-	"github.com/fhermeni/wints/session"
+	"github.com/emmvou/wints/config"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/notifier"
+	"github.com/emmvou/wints/session"
 )
 
 //Exchange is a simple utility struct to gather the element

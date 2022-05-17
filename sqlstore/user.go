@@ -1,4 +1,3 @@
-
 package sqlstore
 
 import (
@@ -9,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 	"github.com/lib/pq"
 )
 

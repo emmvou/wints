@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 //Person returns a random person

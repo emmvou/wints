@@ -1,6 +1,6 @@
 package notifier
 
-import "github.com/fhermeni/wints/schema"
+import "github.com/emmvou/wints/schema"
 
 //NewsLetter describes the news to send to users
 type NewsLetter interface {

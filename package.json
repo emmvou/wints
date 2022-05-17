@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fhermeni/wints.git"
+    "url": "git+https://github.com/emmvou/wints.git"
   },
   "author": "Fabien Hermenier",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/fhermeni/wints/issues"
+    "url": "https://github.com/emmvou/wints/issues"
   },
-  "homepage": "https://github.com/fhermeni/wints#readme",
+  "homepage": "https://github.com/emmvou/wints#readme",
   "devDependencies": {
     "anymatch": "^3.1.2",
     "chokidar": "^3.5.2",

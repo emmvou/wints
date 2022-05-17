@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/fhermeni/wints/mail"
+	"github.com/emmvou/wints/mail"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )

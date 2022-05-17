@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/schema"
 )
 
 const (
@@ -142,10 +142,10 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 			Male:      male,
 		}
 		var lastEdit string = ""
-		if record[timestamp] != ""{
-			lastEdit =record[timestamp]
-		}else{
-			lastEdit =record[timestamp-1]
+		if record[timestamp] != "" {
+			lastEdit = record[timestamp]
+		} else {
+			lastEdit = record[timestamp-1]
 		}
 
 		ts, err := parseTime("2006-01-02", lastEdit, stu)

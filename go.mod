@@ -1,4 +1,4 @@
-module github.com/fhermeni/wints
+module github.com/emmvou/wints
 
 go 1.16
 

@@ -18,9 +18,9 @@ go get github.com/tools/godep
 
 In your `$GOPATH`:
 ```Shell
-git clone https://github.com/fhermeni/wints.git src/github.com/fhermeni/wints # to get the source
-cd src/github.com/fhermeni/wints/; godep restore # to restore the dependencies.
-go install github.com/fhermeni/wints/wintsd # to build the executable.
+git clone https://github.com/emmvou/wints.git src/github.com/emmvou/wints # to get the source
+cd src/github.com/emmvou/wints/; godep restore # to restore the dependencies.
+go install github.com/emmvou/wints/wintsd # to build the executable.
 ```
 
 ## Usage of ./bin/wints:  

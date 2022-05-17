@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 	"github.com/lib/pq"
 )
 

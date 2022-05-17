@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fhermeni/wints/config"
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/mail"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/config"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/mail"
+	"github.com/emmvou/wints/schema"
 )
 
 //Notifier just embed notification mechanisms

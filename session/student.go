@@ -1,6 +1,6 @@
 package session
 
-import "github.com/fhermeni/wints/schema"
+import "github.com/emmvou/wints/schema"
 
 //SetStudentSkippable change the skippable status if the emitter is a major leader at minimum
 func (s *Session) SetStudentSkippable(em string, st bool) error {

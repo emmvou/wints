@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fhermeni/wints/config"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/config"
+	"github.com/emmvou/wints/schema"
 	"github.com/lib/pq"
 
 	"crypto/rand"

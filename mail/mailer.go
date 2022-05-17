@@ -6,7 +6,7 @@ import (
 
 	"text/template"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 var (

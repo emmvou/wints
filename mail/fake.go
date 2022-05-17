@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/schema"
 )
 
 //Fake to mock the mailing system

@@ -5,9 +5,9 @@ package session
 import (
 	"errors"
 
-	"github.com/fhermeni/wints/feeder"
-	"github.com/fhermeni/wints/schema"
-	"github.com/fhermeni/wints/sqlstore"
+	"github.com/emmvou/wints/feeder"
+	"github.com/emmvou/wints/schema"
+	"github.com/emmvou/wints/sqlstore"
 )
 
 var (

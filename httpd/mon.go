@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fhermeni/wints/logger"
+	"github.com/emmvou/wints/logger"
 )
 
 //MonResponseWriter embeds a responsewriter to save the status code

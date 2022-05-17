@@ -3,8 +3,8 @@ package sqlstore
 import (
 	"time"
 
+	"github.com/emmvou/wints/schema"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/fhermeni/wints/schema"
 )
 
 var (

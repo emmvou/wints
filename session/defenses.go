@@ -3,7 +3,7 @@ package session
 import (
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 func (s *Session) NewDefenseSession(room string, id string) (schema.DefenseSession, error) {

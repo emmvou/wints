@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/fhermeni/wints/config"
-	"github.com/fhermeni/wints/feeder"
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/notifier"
-	"github.com/fhermeni/wints/sqlstore"
+	"github.com/emmvou/wints/config"
+	"github.com/emmvou/wints/feeder"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/notifier"
+	"github.com/emmvou/wints/sqlstore"
 
 	"github.com/daaku/go.httpgzip"
 )

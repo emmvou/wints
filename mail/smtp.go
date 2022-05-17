@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/schema"
 )
 
 //SMTP depicts a SMTP-based mailer

@@ -1,9 +1,9 @@
 package httpd
 
 import (
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/schema"
-	"github.com/fhermeni/wints/session"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/schema"
+	"github.com/emmvou/wints/session"
 )
 
 func streamLog(ex Exchange) error {

@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/fhermeni/wints",
+	"ImportPath": "github.com/emmvou/wints",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v75",
 	"Deps": [

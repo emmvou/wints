@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 //ImportError to report a critical error and multiple warnings

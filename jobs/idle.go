@@ -3,9 +3,9 @@ package jobs
 import (
 	"time"
 
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/notifier"
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/notifier"
+	"github.com/emmvou/wints/schema"
 )
 
 //NeverLogged scan students that never logged in since

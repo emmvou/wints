@@ -3,7 +3,7 @@ package session
 import (
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 //Survey get the given survey for a student if the emitter is the student tutor or a major admin at least

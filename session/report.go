@@ -3,7 +3,7 @@ package session
 import (
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 )
 
 //SetReportContent store a report.

@@ -1,7 +1,7 @@
 //Package config aggregates the necessary material to configure the wints daemon
 package config
 
-import "github.com/fhermeni/wints/mail"
+import "github.com/emmvou/wints/mail"
 
 var (
 	//DateTimeLayout expresses the expected format for a date + time

@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fhermeni/wints/feeder"
-	"github.com/fhermeni/wints/logger"
-	"github.com/fhermeni/wints/notifier"
-	"github.com/fhermeni/wints/schema"
-	"github.com/fhermeni/wints/session"
+	"github.com/emmvou/wints/feeder"
+	"github.com/emmvou/wints/logger"
+	"github.com/emmvou/wints/notifier"
+	"github.com/emmvou/wints/schema"
+	"github.com/emmvou/wints/session"
 )
 
 func status(not *notifier.Notifier, w http.ResponseWriter, r *http.Request, e error) {

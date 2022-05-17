@@ -1,6 +1,6 @@
 package session
 
-import "github.com/fhermeni/wints/schema"
+import "github.com/emmvou/wints/schema"
 
 //RmUser removes an account if the emitter is at least an admin and not himself
 func (s *Session) RmUser(email string) error {

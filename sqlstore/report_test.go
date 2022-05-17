@@ -1,4 +1,5 @@
-//+build integration
+//go:build integration
+// +build integration
 
 package sqlstore
 
@@ -6,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/fhermeni/wints/schema"
+	"github.com/emmvou/wints/schema"
 	"github.com/stretchr/testify/assert"
 )
 
