@@ -1,0 +1,46 @@
+<div class="row student-row">
+<div class="col-md-6" id="dashboard-company">
+	{{> student-dashboard-company Internship}}
+</div>
+
+<div class="col-md-6" id="student-dashboard-contacts">
+	{{> student-dashboard-contacts Internship}}
+</div>
+</div>
+
+<div class="row student-row">
+<div class="col-md-6">
+<h3 class="page-header">Reports</h3>
+<p class="text-justify">
+PDF files, 10 MB max.
+See <a href="/assets/consignes-rapports.pdf">the expectations</a>.
+The upload may take time. Once completed, download the report to check for errors.
+</p>
+<p class="text-justify">
+Your <a href="mailto:{{Internship.Convention.Tutor.Person.Email}}">academic supervisor</a> can reconsider the deadlines upon strong justifications.
+You can re-upload until the deadline.
+Once late, you will have <b>one</b> upload opportunity.
+{{#if Config.LatePenalty}}
+There is a {{Config.LatePenalty}} point penalty per day late.
+{{/if}}
+</p>
+<table class="table table-hover table-condensed">
+<thead>
+<tr>
+	<td>Kind</td><td>Deadline</td><td>Delivery date</td><td>Grade</td><td></td>
+</tr>
+</thead>
+<tbody>
+{{#each Internship.Reports}}
+{{> student-dashboard-report this}}
+{{/each}}
+</tbody>
+</table>
+</div>
+<div class="col-md-6" id="dashboard-defense">
+</div>
+
+<div class="col-md-6" id="dashboard-alumni">
+{{> student-dashboard-alumni Internship.Convention.Student.Alumni}}
+</div>
+</div>

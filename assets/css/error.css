@@ -1,0 +1,76 @@
+.has-error label {
+	font-weight: bold;
+}
+
+.has-error input {
+	color: #d9534f;
+	border: none;	
+}
+
+.popover {
+	padding: 0px;
+	box-shadow: none;
+	font-weight: inherit;
+}
+.popover-error .popover-content  {
+	background-color: #d9534f;
+	color: #fff;
+}
+
+.popover-error.right>.arrow:after {
+	border-left-color: #d9534f;
+}
+
+.popover-error.top>.arrow:after {
+	border-bottom-color: #d9534f;
+}
+
+.popover-error.bottom>.arrow:after {
+	border-top-color: #d9534f;
+}
+
+.popover-error.left>.arrow:after {
+	border-right-color: #d9534f;
+}
+
+.popover-warning .popover-content {
+	background-color: #f0ad4e;	
+	color: #fff;
+}
+
+.popover-warning.right>.arrow:after {
+	border-left-color: #f0ad4e;
+}
+
+.popover-warning.top>.arrow:after {
+	border-bottom-color: #f0ad4e;
+}
+
+.popover-warning.bottom>.arrow:after {
+	border-top-color: #f0ad4e;
+}
+
+.popover-warning.left>.arrow:after {
+	border-right-color: #f0ad4e;
+}
+
+
+.editable-container .popover-content {
+	background-color: inherit;	
+}
+
+.editable-container.right>.arrow:after {
+	background-color: inherit;	
+}
+
+.editable-container.top>.arrow:after {
+	background-color: inherit;	
+}
+
+.editable-container.bottom>.arrow:after {
+	background-color: inherit;	
+}
+
+.editable-container.left>.arrow:after {
+	background-color: inherit;	
+}

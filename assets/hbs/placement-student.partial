@@ -1,0 +1,34 @@
+<tr data-email="{{User.Person.Email}}">
+    <td><input type='checkbox' data-email='{{User.Person.Email}}' class="shiftSelectable" data-stu-fn='{{fullname User.Person true}}'/></td>
+    <td class="fn">    
+     {{#if I}}
+        <a href="#" class="click" onclick="showInternship('{{User.Person.Email}}', true)">
+            {{User.Person.Lastname}}, {{User.Person.Firstname}}
+        </a>
+     {{else}}
+        {{User.Person.Lastname}}, {{User.Person.Firstname}}
+     {{/if}}
+    </td>    
+    <td class="click text-center" {{#if Warn}}data-text="-1"{{else}}data-text="0"{{/if}} onclick="updateStudentSkipable('{{User.Person.Email}}', this)">
+        <i class="glyphicon glyphicon-{{#if Skip}}remove{{else}}ok{{/if}}"></i>
+    </td>  
+    <td>{{Promotion}}</td>
+    <td>{{Major}}</td>  
+    {{#if Skip}}  
+        <td colspan="4" class="text-center">
+            <i>not my job</i>
+        </td>    
+    {{else}}  
+        {{#if I}}
+        <td><small><a href="{{I.Convention.Company.WWW}}">{{I.Convention.Company.Name}}</a></small></td>
+        <td data-text="{{dateFmt I.Convention.Begin "X"}}">{{dateFmt I.Convention.Begin "DD/MM/YY"}} - {{dateFmt I.Convention.End "DD/MM/YY"}}</td>
+        <td class="fn">{{I.Convention.Tutor.Person.Lastname}}, {{I.Convention.Tutor.Person.Firstname}}</td>
+        <td class="text-right">{{I.Convention.Gratification}}</td>
+        {{else}}
+        <td colspan="4" class="text-center">
+            <a class="click {{#if Warn}}text-danger{{/if}}"
+                onclick="conventionValidator('{{User.Person.Email}}')">no validated internship</a>
+        </td>
+        {{/if}}   
+    {{/if}}   
+</tr>

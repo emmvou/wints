@@ -1,0 +1,39 @@
+{
+  "name": "wints",
+  "version": "1.0.0",
+  "description": "internship management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fhermeni/wints.git"
+  },
+  "author": "Fabien Hermenier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fhermeni/wints/issues"
+  },
+  "homepage": "https://github.com/fhermeni/wints#readme",
+  "devDependencies": {
+    "anymatch": "^3.1.2",
+    "chokidar": "^3.5.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-declare": "^0.3.0",
+    "gulp-handlebars": "^5.0.2",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-livereload": "^4.0.2",
+    "gulp-order": "^1.2.0",
+    "gulp-print": "^5.0.2",
+    "gulp-rename": "^2.0.0",
+    "gulp-uglify": "^3.0.2",
+    "gulp-wrap": "^0.15.0",
+    "handlebars": "^4.7.7",
+    "merge-stream": "^2.0.0"
+  },
+  "dependencies": {
+    "gulp-load-plugins": "^2.0.7"
+  }
+}
