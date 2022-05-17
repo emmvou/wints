@@ -2,7 +2,8 @@
 
 [![CI](https://github.com/emmvou/wints/actions/workflows/go.yml/badge.svg)](https://github.com/emmvou/wints/actions/workflows/go.yml)
 
-A web application to manage final internships at Polytech.
+A web application to manage final internships at Polytech.  
+See [this repo](https://github.com/fhermeni/wints)
 
 ## Requirements
 
