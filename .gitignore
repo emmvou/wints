@@ -31,3 +31,5 @@ wints.conf
 
 node_modules
 vendor/
+
+*.prof

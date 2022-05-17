@@ -38,4 +38,7 @@ wints
 
 ## Benchmarks, tests
 
-go test -x -v -tags=integration -bench BenchmarkInternships -cpuprofile=cpu.prof
+```shell
+go test -x -v -tags=integration -bench BenchmarkInternships -cpuprofile=cpu.prof -db-url $CONNECTION_STRING
+```
+Replace `$CONNECTION_STRING` with the string used in `wints.conf`.
