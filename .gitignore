@@ -33,3 +33,7 @@ node_modules
 vendor/
 
 *.prof
+
+feeder/*
+!feeder/*/
+!feeder/*.*
