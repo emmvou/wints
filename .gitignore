@@ -37,3 +37,8 @@ vendor/
 feeder/*
 !feeder/*/
 !feeder/*.*
+
+assets/js/wints.min.js
+assets/js/hbs_partial.js
+assets/js/hbs.js
+assets/css/wints.css
