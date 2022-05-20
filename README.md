@@ -16,7 +16,7 @@ See [this repo](https://github.com/fhermeni/wints)
 In your `$GOPATH` (usually `$HOME/go`):
 ```shell
 git clone https://github.com/emmvou/wints.git src/github.com/emmvou/wints
-cd src/github.com/emmvou/wints/; npm ci
+cd src/github.com/emmvou/wints/; npm ci; gulp assets
 go install github.com/emmvou/wints
 ```
 
@@ -37,6 +37,13 @@ wints
         install the database  
   -new-root string  
         Invite a root user  
+```
+
+## Development environment
+
+In a development environment, use the following commands:
+```shell
+gulp assets watch
 ```
 
 ## Benchmarks, tests
