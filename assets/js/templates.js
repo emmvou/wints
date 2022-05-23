@@ -326,7 +326,7 @@ Handlebars.registerHelper('report', function(r, em, cb) {
 		bg = "danger";
 	}
 
-	var buf = '<td data-text=' + value + ' onclick="showReport(\'' + em + '\', \'' + r.Kind + '\')" class="click ' + bg + ' text-center">';
+	var buf = '<td data-text=' + value + ' onclick="showReport(this.dataset.email, \'' + r.Kind + '\')" data-email="'+em+'" class="click ' + bg + ' text-center">';
 
 	buf = buf + cnt + '</td>';
 	return new Handlebars.SafeString(buf);

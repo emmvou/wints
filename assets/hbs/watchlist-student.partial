@@ -6,7 +6,7 @@ data-tut='{{Convention.Tutor.Person.Email}}' data-tut-fn='{{fullname Convention.
 data-sup='{{Convention.Supervisor.Email}}' data-sup-fn='{{fullname Convention.Supervisor true}}'/>
     </td>
     <td>
-    <a class='click fn' onclick="showInternship(this.dataset.name)" data-name="{{Convention.Student.User.Person.Email}}">
+    <a class='click fn' onclick="showInternship(this.dataset.email)" data-email="{{Convention.Student.User.Person.Email}}">
     {{fullname Convention.Student.User.Person}}
     </a>
 
@@ -35,7 +35,7 @@ data-sup='{{Convention.Supervisor.Email}}' data-sup-fn='{{fullname Convention.Su
 
     {{#if Convention.Student.Alumni}}
     <td class="text-center" data-text="1">
-        <a href="#" onclick="showAlumni('{{Convention.Student.User.Person.Email}}')">
+        <a href="#" onclick="showAlumni(this.dataset.email)" data-email="{{Convention.Student.User.Person.Email}}">
             <i class="glyphicon glyphicon-star-empty"></i>
         </a>
     </td>

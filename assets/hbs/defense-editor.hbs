@@ -58,7 +58,7 @@
 <div class="modal-footer">
     {{#if Student}}
     <div class="pull-left">
-        <button type="button" class="btn btn-danger" onclick="delStudentDefense('{{Student.User.Person.Email}}', '{{Room}}', '{{SessionId}}')">Delete</button>
+        <button type="button" class="btn btn-danger" onclick="delStudentDefense(this.dataset.email, '{{Room}}', '{{SessionId}}')" data-email="{{Student.User.Person.Email}}" >Delete</button>
     </div>
     {{/if}}
     <div class="text-right">

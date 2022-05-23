@@ -2,14 +2,14 @@
     <td><input type='checkbox' data-email='{{User.Person.Email}}' class="shiftSelectable" data-stu-fn='{{fullname User.Person true}}'/></td>
     <td class="fn">    
      {{#if I}}
-        <a href="#" class="click" onclick="showInternship(this.dataset.name, true)" data-name="{{User.Person.Email}}">
+        <a href="#" class="click" onclick="showInternship(this.dataset.email, true)" data-email="{{User.Person.Email}}">
             {{User.Person.Lastname}}, {{User.Person.Firstname}}
         </a>
      {{else}}
         {{User.Person.Lastname}}, {{User.Person.Firstname}}
      {{/if}}
     </td>    
-    <td class="click text-center" {{#if Warn}}data-text="-1"{{else}}data-text="0"{{/if}} onclick="updateStudentSkipable('{{User.Person.Email}}', this)">
+    <td class="click text-center" {{#if Warn}}data-text="-1"{{else}}data-text="0"{{/if}} onclick="updateStudentSkipable(this.dataset.email, this)" data-email="{{User.Person.Email}}">
         <i class="glyphicon glyphicon-{{#if Skip}}remove{{else}}ok{{/if}}"></i>
     </td>  
     <td>{{Promotion}}</td>
@@ -27,7 +27,7 @@
         {{else}}
         <td colspan="4" class="text-center">
             <a class="click {{#if Warn}}text-danger{{/if}}"
-                onclick="conventionValidator('{{User.Person.Email}}')">no validated internship</a>
+                onclick="conventionValidator(this.dataset.email)" data-email="{{User.Person.Email}}">no validated internship</a>
         </td>
         {{/if}}   
     {{/if}}   

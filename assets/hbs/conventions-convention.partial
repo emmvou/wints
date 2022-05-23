@@ -13,6 +13,6 @@
     </td>
 
     <td data-text="{{#if Skip}}0{{else}}1{{/if}}">
-    <i onclick="updateConventionSkipable('{{Student.User.Person.Email}}',{{#if Skip}}true{{else}}false{{/if}})" class="glyphicon glyphicon-eye-{{#if Skip}}close{{else}}open{{/if}}"></i>
+    <i onclick="updateConventionSkipable(this.dataset.email,{{#if Skip}}true{{else}}false{{/if}})" data-email="{{Student.User.Person.Email}}" class="glyphicon glyphicon-eye-{{#if Skip}}close{{else}}open{{/if}}"></i>
     </td>    
 </tr>

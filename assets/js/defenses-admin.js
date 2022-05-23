@@ -187,7 +187,7 @@ function editStudentDefense(elmt,stu, room, id) {
 	getDefense(stu).done(function (def) {
 		$("#modal").render("defense-editor",def, function () {
 			$("#defense-time").datetimepicker({stepping: 30, timeZone: 'Europe/Paris'})
-			$("#modal").find(".btn-primary").attr("onclick", "updateStudentDefense('"+ stu + "','" + room + "','" + id + "')").html("Update");
+			$("#modal").find(".btn-primary").attr("onclick", `updateStudentDefense("${stu}","${room}","${id}")`).html("Update");
 			showModal(function() {
 				$("#defense-time").data("DateTimePicker").date(moment(def.Time));
 			})
