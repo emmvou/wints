@@ -60,6 +60,11 @@ type Internships struct {
 	Version     string
 }
 
+type Group struct {
+	Name   string
+	Parent string
+}
+
 func contains(s []string, v string) bool {
 	for _, x := range s {
 		if x == v {
