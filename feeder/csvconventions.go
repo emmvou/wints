@@ -37,6 +37,7 @@ const (
 	tutorLn         = 53
 	tutorEmail      = 55
 	tutorTel        = 56
+	numUNS          = 66
 )
 
 var (
