@@ -10,7 +10,12 @@
     </buildTags>
   </component>
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/assets/dist" />
+      <excludePattern pattern="wints.min.js" />
+      <excludePattern pattern="hbs.js" />
+      <excludePattern pattern="hbs_partial.js" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
