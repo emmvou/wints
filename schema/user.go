@@ -7,7 +7,7 @@ import (
 )
 
 //The different level of Roles
-const (
+const ( //TODO change here
 	StudentLevel int = iota
 	TutorLevel
 	MajorLevel
@@ -90,12 +90,11 @@ type Alumni struct {
 	SameCompany bool
 }
 
-//Student denotes a student that as a promotion, a major.
+//Student denotes a student that as a group.
 type Student struct {
-	User      User
-	Promotion string
-	Major     string
-	Alumni    *Alumni `,json:"omitempty"`
+	User   User
+	Group  string
+	Alumni *Alumni `,json:"omitempty"`
 	//Skip indicates we don't care about this student. Might left the school for example
 	Skip bool
 	Male bool
@@ -143,9 +142,9 @@ func (ss Students) Filter(filter func(Student) bool) Students {
 	return res
 }
 
-//StudentInMajor is a filter that keep only the students in the given major
-func StudentInMajor(major string) func(Student) bool {
+//StudentInGroup is a filter that keep only the students in the given group
+func StudentInGroup(group string) func(Student) bool {
 	return func(s Student) bool {
-		return s.Major == major
+		return s.Group == group
 	}
 }

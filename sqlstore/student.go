@@ -9,12 +9,11 @@ import (
 )
 
 var (
-	allStudents   = "select male, firstname, lastname, users.email, tel, role, lastVisit, promotion, major, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email)"
-	selectStudent = "select male, firstname, lastname, users.email, tel, role, lastVisit, promotion, major, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email) where students.email=$1"
-	insertStudent = "insert into students(email, male, major, promotion, skip) values ($1,$2,$3,$4,$5)"
+	allStudents   = "select male, firstname, lastname, users.email, tel, role, lastVisit, group, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email)"
+	selectStudent = "select male, firstname, lastname, users.email, tel, role, lastVisit, group, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email) where students.email=$1"
+	insertStudent = "insert into students(email, male, group, skip) values ($1,$2,$3,$4,$5)"
 	skipStudent   = "update students set skip=$2 where email=$1"
-	setPromotion  = "update students set promotion=$2 where email=$1"
-	setMajor      = "update students set major=$2 where email=$1"
+	setGroup      = "update students set group=$2 where email=$1"
 	updateMale    = "update students set male=$2 where email=$1"
 	updateAlumni  = "update students set nextPosition=$1, nextFrance=$2, nextPermanent=$3, nextSameCompany=$4, nextContact=$5 where email=$6"
 )
@@ -53,8 +52,7 @@ func scanStudent(rows *sql.Rows) (schema.Student, error) {
 		&s.User.Person.Tel,
 		&role,
 		&lastVisit,
-		&s.Promotion,
-		&s.Major,
+		&s.Group,
 		&nextPos,
 		&nextFrance,
 		&nextPermanent,
@@ -93,15 +91,12 @@ func (s *Store) Students() (schema.Students, error) {
 	return students, err
 }
 
-//NewStudent create a new student using a given person, major, promotion and gender
-//The major and the promotion must be valid against the supported values in config.Internships
+//NewStudent create a new student using a given person, group and gender
+//The mgroup must be valid against the supported values in config.Internships
 //The underlying user account is created
-func (s *Store) NewStudent(p schema.Person, major, promotion string, male bool) error {
-	if !s.config.ValidMajor(major) {
-		return schema.ErrInvalidMajor
-	}
-	if !s.config.ValidPromotion(promotion) {
-		return schema.ErrInvalidPromotion
+func (s *Store) NewStudent(p schema.Person, group string, male bool) error {
+	if !s.config.ValidGroup(group) {
+		return schema.ErrInvalidGroup
 	}
 	tx := newTxErr(s.db)
 	u := schema.User{
@@ -109,7 +104,7 @@ func (s *Store) NewStudent(p schema.Person, major, promotion string, male bool) 
 		Role:   schema.STUDENT,
 	}
 	s.addUser(&tx, u)
-	tx.Update(insertStudent, p.Email, male, major, promotion, false)
+	tx.Update(insertStudent, p.Email, male, group, false)
 	return tx.Done()
 }
 
@@ -118,20 +113,11 @@ func (s *Store) SetStudentSkippable(em string, st bool) error {
 	return s.singleUpdate(skipStudent, schema.ErrUnknownUser, em, st)
 }
 
-//SetPromotion updates the student promotion
-func (s *Store) SetPromotion(stu, p string) error {
-	if !s.config.ValidPromotion(p) {
-		return schema.ErrInvalidPromotion
+func (s *Store) SetGroup(stu, g string) error {
+	if !s.config.ValidGroup(g) {
+		return schema.ErrInvalidGroup
 	}
-	return s.singleUpdate(setPromotion, schema.ErrUnknownStudent, stu, p)
-}
-
-//SetMajor updates the student major
-func (s *Store) SetMajor(stu, m string) error {
-	if !s.config.ValidMajor(m) {
-		return schema.ErrInvalidMajor
-	}
-	return s.singleUpdate(setMajor, schema.ErrUnknownStudent, stu, m)
+	return s.singleUpdate(setGroup, schema.ErrUnknownStudent, stu, g)
 }
 
 //SetMale stores the student gender

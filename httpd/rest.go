@@ -50,8 +50,7 @@ func NewEndPoints(not *notifier.Notifier, store *sqlstore.Store, convs feeder.Co
 	ed.del("/users/:u", delUser)
 	ed.get("/users/:u", user)
 	ed.del("/users/:u/session", ed.delSession)
-	ed.post("/students/:s/major", setMajor)
-	ed.post("/students/:s/promotion", setPromotion)
+	ed.post("/students/:s/group", setGroup)
 	ed.post("/students/:s/male", setMale)
 	ed.post("/students/:s/alumni", setAlumni)
 	ed.post("/students/:s/skip", setStudentSkippable)
@@ -246,20 +245,12 @@ func setUserRole(ex Exchange) error {
 	return err
 }
 
-func setMajor(ex Exchange) error {
-	var m string
-	if err := ex.inJSON(&m); err != nil {
+func setGroup(ex Exchange) error {
+	var g string
+	if err := ex.inJSON(&g); err != nil {
 		return err
 	}
-	return ex.s.SetMajor(ex.V("s"), m)
-}
-
-func setPromotion(ex Exchange) error {
-	var p string
-	if err := ex.inJSON(&p); err != nil {
-		return err
-	}
-	return ex.s.SetPromotion(ex.V("s"), p)
+	return ex.s.SetGroup(ex.V("s"), g)
 }
 
 func setMale(ex Exchange) error {
@@ -305,7 +296,7 @@ func newStudent(ex Exchange) error {
 		return err
 	}
 	s.User.Role = schema.STUDENT
-	err := ex.s.NewStudent(s.User.Person, s.Major, s.Promotion, s.Male)
+	err := ex.s.NewStudent(s.User.Person, s.Group, s.Male)
 	ex.not.NewStudent(ex.s.Me(), s, err)
 	return ex.outJSON(s, err)
 }

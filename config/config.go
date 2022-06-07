@@ -16,7 +16,7 @@ type Feeder struct {
 	Password   string
 	URL        string
 	Frequency  Duration
-	Promotions []string
+	Promotions []string //TODO replace with groups
 	Encoding   string
 }
 
@@ -52,8 +52,7 @@ type Journal struct {
 
 //Internships declare the internship organization
 type Internships struct {
-	Majors      []string
-	Promotions  []string
+	Groups      map[string]Group
 	Reports     []Report
 	Surveys     []Survey
 	LatePenalty int
@@ -74,14 +73,9 @@ func contains(s []string, v string) bool {
 	return false
 }
 
-//ValidMajor tests if a given major is supported
-func (i Internships) ValidMajor(m string) bool {
-	return contains(i.Majors, m)
-}
-
-//ValidPromotion tests if a promotion is supported
-func (i Internships) ValidPromotion(p string) bool {
-	return contains(i.Promotions, p)
+func (i Internships) ValidGroup(g string) bool {
+	_, ok := i.Groups[g]
+	return ok
 }
 
 //Report configures a report definition
@@ -116,7 +110,7 @@ type Config struct {
 	Db          Db
 	Mailer      mail.Config
 	HTTPd       HTTPd
-	Majors      []string
+	Groups      map[string]Group
 	Journal     Journal
 	Internships Internships
 	Crons       Crons

@@ -37,10 +37,8 @@ var (
 	ErrInvalidPeriod = errors.New("invalid internship period")
 	//ErrConventionExists declares a convention for the student already exists
 	ErrConventionExists = errors.New("convention already scanned")
-	//ErrInvalidMajor declares the declared major is not supported
-	ErrInvalidMajor = errors.New("Unknown major")
-	//ErrInvalidPromotion declares the promotion is not supported
-	ErrInvalidPromotion = errors.New("Unknown promotion")
+	//ErrInvalidGroup declares the group is not supported
+	ErrInvalidGroup = errors.New("Unknown group")
 	//ErrDeadlinePassed declares the deadline for a report passed
 	ErrDeadlinePassed = errors.New("Deadline passed")
 	//ErrGradedReport declares the report is already graded

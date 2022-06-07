@@ -11,7 +11,7 @@ func (s *Session) SetStudentSkippable(em string, st bool) error {
 }
 
 //Students lists all the students if the emitter is an admin at least
-func (s *Session) Students() (schema.Students, error) {
+func (s *Session) Students() (schema.Students, error) { //TODO change when supervisors changed
 	students, err := s.store.Students()
 	if s.Role().Level() >= schema.HeadLevel {
 		return students, err
@@ -39,18 +39,10 @@ func (s *Session) SetAlumni(student string, a schema.Alumni) error {
 	return ErrPermission
 }
 
-//SetMajor changes the student major if the emitter is the student or at least a major leader
-func (s *Session) SetMajor(student string, m string) error {
+//SetPromotion changes the student group if the emitter is the student themselves or a major leader at least
+func (s *Session) SetGroup(student string, g string) error {
 	if s.Myself(student) || s.Role().Level() >= schema.MajorLevel {
-		return s.store.SetMajor(student, m)
-	}
-	return ErrPermission
-}
-
-//SetPromotion changes the student promotion if the emitter is the student himself or a major leader at least
-func (s *Session) SetPromotion(student string, p string) error {
-	if s.Myself(student) || s.Role().Level() >= schema.MajorLevel {
-		return s.store.SetPromotion(student, p)
+		return s.store.SetGroup(student, g)
 	}
 	return ErrPermission
 }
