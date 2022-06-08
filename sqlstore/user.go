@@ -78,7 +78,7 @@ func scanUser(row *sql.Rows) (schema.User, error) {
 		&r,
 		&last,
 	)
-	u.Role = schema.Role(r)
+	u.Roles = []schema.Role{schema.Role(r)}
 	u.LastVisit = nullableTime(last)
 	return u, err
 }
@@ -165,13 +165,13 @@ func (s *Store) NewPassword(token, newP []byte) (string, error) {
 
 //NewUser add a user
 //Basically, calls addUser
-func (s *Store) NewUser(p schema.Person, role schema.Role) ([]byte, error) {
+func (s *Store) NewUser(p schema.Person, roles []schema.Role) ([]byte, error) {
 	if !validEmail(p.Email) {
 		return []byte{}, schema.ErrInvalidEmail
 	}
 	token := randomBytes(32)
 	tx := newTxErr(s.db)
-	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, role.String(), randomBytes(32))
+	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, roles.String(), randomBytes(32))
 	if nb == 0 {
 		tx.err = schema.ErrUserExists
 	}

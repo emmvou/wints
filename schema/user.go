@@ -2,6 +2,7 @@ package schema
 
 import (
 	"database/sql/driver"
+	"github.com/emmvou/wints/config"
 	"strings"
 	"time"
 )
@@ -10,8 +11,7 @@ import (
 const ( //TODO change here
 	StudentLevel int = iota
 	TutorLevel
-	MajorLevel
-	HeadLevel
+	SupervisorLevel
 	AdminLevel
 	RootLevel
 
@@ -31,10 +31,8 @@ func (p Role) Level() int {
 		return StudentLevel
 	} else if p == "tutor" {
 		return TutorLevel
-	} else if strings.Index(string(p), "major") == 0 {
-		return MajorLevel
-	} else if p == "head" {
-		return HeadLevel
+	} else if strings.Index(string(p), "supervisor") == 0 {
+		return SupervisorLevel
 	} else if p == "admin" {
 		return AdminLevel
 	} else if p == "root" {
@@ -77,7 +75,7 @@ type Session struct {
 //User is a person with an account
 type User struct {
 	Person    Person
-	Role      Role
+	Roles     []Role
 	LastVisit *time.Time `,json:"omitempty"`
 }
 
@@ -142,9 +140,78 @@ func (ss Students) Filter(filter func(Student) bool) Students {
 	return res
 }
 
-//StudentInGroup is a filter that keep only the students in the given group
-func StudentInGroup(group string) func(Student) bool {
+//StudentInAllGroups is a filter that keeps only the students in the given groups and subgroups recursively
+func StudentInAllGroups(groups []string, tree map[string]*config.Group) func(Student) bool {
 	return func(s Student) bool {
-		return s.Group == group
+		studentGroups := getParents(groups, s.Group, tree)
+		studentGroups = removeDuplicateStr(studentGroups)
+		for _, sg := range studentGroups {
+			if stringInSlice(sg, groups) {
+				return true
+			}
+		}
+		return false
 	}
+}
+
+//AllSubRole extract all the second levels role if exist.
+func (u User) AllSubRoles() []string {
+	res := make([]string, 0)
+	for _, r := range u.Roles {
+		from := strings.LastIndex(string(r), "-") // TODO check if 1 error
+		if from < len(string(r)) {
+			continue
+		}
+		res = append(res, string(r)[(from+1):len(r)])
+
+	}
+	return res
+}
+
+//Level returns the authentication level associated to a given role
+func (p Role) AllLevels() int {
+	if p == "student" {
+		return StudentLevel
+	} else if p == "tutor" {
+		return TutorLevel
+	} else if strings.Index(string(p), "supervisor") == 0 {
+		return SupervisorLevel
+	} else if p == "admin" {
+		return AdminLevel
+	} else if p == "root" {
+		return RootLevel
+	}
+	return -1
+}
+
+// TODO add error
+func getParents(groups []string, group string, tree map[string]*config.Group) []string {
+	if val, ok := tree[group]; ok {
+		groups = append(groups, group)
+		if val.Parent != "" {
+			return getParents(groups, val.Parent, tree)
+		}
+	}
+	return groups
+}
+
+func removeDuplicateStr(strSlice []string) []string {
+	allKeys := make(map[string]bool)
+	list := []string{}
+	for _, item := range strSlice {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

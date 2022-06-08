@@ -52,7 +52,7 @@ type Journal struct {
 
 //Internships declare the internship organization
 type Internships struct {
-	Groups      map[string]Group
+	Groups      map[string]*Group
 	Reports     []Report
 	Surveys     []Survey
 	LatePenalty int
@@ -76,6 +76,14 @@ func contains(s []string, v string) bool {
 func (i Internships) ValidGroup(g string) bool {
 	_, ok := i.Groups[g]
 	return ok
+}
+
+func (i Internships) GetGroup(id string) *Group {
+	g, ok := i.Groups[id]
+	if !ok {
+		return nil
+	}
+	return g
 }
 
 //Report configures a report definition
@@ -110,7 +118,6 @@ type Config struct {
 	Db          Db
 	Mailer      mail.Config
 	HTTPd       HTTPd
-	Groups      map[string]Group
 	Journal     Journal
 	Internships Internships
 	Crons       Crons

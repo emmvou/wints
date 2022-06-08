@@ -56,7 +56,7 @@ func inviteRoot(em string) {
 			Email:     em,
 			Tel:       "n/a",
 		},
-		Role: schema.ROOT,
+		Roles: []schema.Role{schema.ROOT},
 	}
 	token, err := store.NewUser(u.Person, schema.ROOT)
 	fatal("Create root account", err)

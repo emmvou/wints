@@ -41,11 +41,11 @@ var cfg = config.Internships{
 func newTutor(t *testing.T) schema.User {
 	//Preparation
 	p := testutil.Person()
-	_, err := store.NewUser(p, schema.TUTOR)
+	_, err := store.NewUser(p, []schema.Role{schema.TUTOR})
 	assert.Nil(t, err)
 	return schema.User{
 		Person: p,
-		Role:   schema.TUTOR,
+		Roles:  []schema.Role{schema.TUTOR},
 	}
 }
 
@@ -63,15 +63,14 @@ func newStudent(t *testing.T) schema.Student {
 	p := testutil.Person()
 	u := schema.User{
 		Person: p,
-		Role:   schema.STUDENT,
+		Roles:  []schema.Role{schema.STUDENT},
 	}
 	stu := schema.Student{
-		User:      u,
-		Major:     "al",
-		Promotion: "si",
-		Male:      true,
+		User:  u,
+		Group: "si5al",
+		Male:  true,
 	}
-	assert.Nil(t, store.NewStudent(p, stu.Major, stu.Promotion, stu.Male))
+	assert.Nil(t, store.NewStudent(p, stu.Group, stu.Male))
 	return stu
 }
 

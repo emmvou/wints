@@ -168,7 +168,7 @@ func (s *Store) DefenseSession(room, id string) (schema.DefenseSession, error) {
 			&u.Person.Email,
 			&role,
 			&last)
-		u.Role = schema.Role(role)
+		u.Roles = []schema.Role{schema.Role(role)}
 		u.LastVisit = nullableTime(last)
 		if err != nil {
 			return session, err

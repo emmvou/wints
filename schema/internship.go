@@ -1,6 +1,9 @@
 package schema
 
-import "time"
+import (
+	"github.com/emmvou/wints/config"
+	"time"
+)
 
 //Company stores meaningful information for a company hosting a student.
 type Company struct {
@@ -102,9 +105,16 @@ func Tutoring(tut string) func(Internship) bool {
 	}
 }
 
-//InMajor is a filter that keep only the internships in the given major
-func InMajor(major string) func(Internship) bool {
+//InGroups is a filter that keeps only the internships in the given groups and subgroups recursively
+func InGroups(groups []string, tree map[string]*config.Group) func(Internship) bool {
 	return func(i Internship) bool {
-		return i.Convention.Student.Major == major
+		studentGroups := getParents(groups, i.Convention.Student.Group, tree)
+		studentGroups = removeDuplicateStr(studentGroups)
+		for _, sg := range studentGroups {
+			if stringInSlice(sg, groups) {
+				return true
+			}
+		}
+		return false
 	}
 }

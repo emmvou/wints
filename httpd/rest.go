@@ -141,7 +141,7 @@ func (ed *EndPoints) openSession(w http.ResponseWriter, r *http.Request) (sessio
 		return session.Session{}, err
 	}
 	ed.store.Visit(user.Person.Email)
-	return session.NewSession(user, ed.store, ed.conventions), err
+	return session.NewSession(user, ed.store, ed.conventions, ed.organization.Groups), err
 }
 
 func (ed *EndPoints) anon(fn EndPoint) httptreemux.HandlerFunc {
@@ -194,7 +194,7 @@ func newUser(ex Exchange) error {
 	if err := ex.inJSON(&u); err != nil {
 		return err
 	}
-	token, err := ex.s.NewUser(u.Person, u.Role)
+	token, err := ex.s.NewUser(u.Person, u.Roles)
 	err = ex.not.InviteTeacher(ex.s.Me(), u, string(token), err)
 	return ex.outJSON(u, err)
 }
@@ -295,12 +295,13 @@ func newStudent(ex Exchange) error {
 	if err := ex.inJSON(&s); err != nil {
 		return err
 	}
-	s.User.Role = schema.STUDENT
+	s.User.Roles = []schema.Role{schema.STUDENT}
 	err := ex.s.NewStudent(s.User.Person, s.Group, s.Male)
 	ex.not.NewStudent(ex.s.Me(), s, err)
 	return ex.outJSON(s, err)
 }
 
+// TODO add config
 func internships(ex Exchange) error {
 	start := time.Now()
 
@@ -429,7 +430,7 @@ func resetSurvey(ex Exchange) error {
 }
 
 func requestSurvey(ex Exchange) error {
-	if ex.s.Me().Role.Level() < schema.AdminLevel {
+	if !session.IsAdminAtLeast(&ex.s) {
 		return session.ErrPermission
 	}
 	stu := ex.V("s")

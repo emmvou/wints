@@ -5,6 +5,7 @@ package session
 import (
 	"errors"
 
+	"github.com/emmvou/wints/config"
 	"github.com/emmvou/wints/feeder"
 	"github.com/emmvou/wints/schema"
 	"github.com/emmvou/wints/sqlstore"
@@ -21,6 +22,7 @@ type Session struct {
 	my          schema.User
 	store       *sqlstore.Store
 	conventions feeder.Conventions
+	groups      map[string]*config.Group
 }
 
 //AnonSession creates a session that is not attached to a particular user
@@ -29,13 +31,13 @@ func AnonSession(store *sqlstore.Store) Session {
 }
 
 //NewSession creates a new session
-func NewSession(u schema.User, store *sqlstore.Store, conventions feeder.Conventions) Session {
-	return Session{my: u, store: store, conventions: conventions}
+func NewSession(u schema.User, store *sqlstore.Store, conventions feeder.Conventions, groups map[string]*config.Group) Session {
+	return Session{my: u, store: store, conventions: conventions, groups: groups}
 }
 
 //RmSession delete the session if the emitter is the session owner or at least an admin
 func (s *Session) RmSession(em string) error {
-	if s.Myself(em) || s.Role().Level() >= schema.AdminLevel {
+	if s.Myself(em) || IsAdminAtLeast(s) {
 		return s.store.RmSession(em)
 	}
 	return ErrPermission
@@ -46,9 +48,8 @@ func (s *Session) Me() schema.User {
 	return s.my
 }
 
-//Role returns the current user role
-func (s *Session) Role() schema.Role {
-	return s.my.Role
+func (s *Session) Roles() []schema.Role {
+	return s.my.Roles
 }
 
 //Myself checks if the given email matches the session one
@@ -65,38 +66,30 @@ func (s *Session) Tutoring(student string) bool {
 	return c.Tutor.Person.Email == s.my.Person.Email
 }
 
-//Watching checks if the student is in the major I am the leader of, an head or not or
+// TODO inject group arborescence
+//Watching checks if the student is in the major I am the leader of, a head or not or
 //the student tutor
 func (s *Session) Watching(student string) bool {
 	//watching
-	if s.my.Role.Level() >= schema.HeadLevel {
+	if IsRoleAtLeast(s, schema.HeadLevel) {
 		return true
 	}
 	c, err := s.store.Convention(student)
 	if err != nil {
 		return false
 	}
-	//wathing
-	if s.my.Role.Level() == schema.MajorLevel && s.my.Role.SubRole() == c.Student.Major {
+	//watching
+	if s.InMyGroups(student) {
 		return true
 	}
 	//tutoring
 	return s.my.Person.Email == c.Tutor.Person.Email
 }
 
-//InMyMajor checks if the student is in the major I am the leader of
-func (s *Session) InMyMajor(student string) bool {
-	stu, err := s.store.Student(student)
-	if err != nil {
-		return false
-	}
-	return s.my.Role.SubRole() == stu.Major
-}
-
 //JuryOf checks if I am in a jury for a defense.
 //That if indeed I am in the jury, or an admin
 func (s *Session) JuryOf(student string) bool {
-	if s.my.Role.Level() >= schema.AdminLevel {
+	if IsAdminAtLeast(s) {
 		return true
 	}
 	def, err := s.store.Defense(student)
@@ -108,4 +101,54 @@ func (s *Session) JuryOf(student string) bool {
 		return false
 	}
 	return mySession.InJury(s.my.Person.Email)
+}
+
+//InMyGroups checks if the student is in the group or a subgroup I am the leader of
+func (s *Session) InMyGroups(student string) bool {
+	//call InGroup for each group I am the leader of + remove redundancies
+	stu, err := s.store.Student(student)
+	if err != nil {
+		return false
+	}
+	//get all parents of the group
+	var groups []string
+	for _, group := range s.my.AllSubRoles() {
+		groups = s.getParents(groups, group)
+	}
+	//remove redundancies
+	groups = removeDuplicateStr(groups)
+
+	return stringInSlice(stu.Group, groups)
+}
+
+// TODO add error
+func (s *Session) getParents(groups []string, group string) []string {
+	if val, ok := s.groups[group]; ok {
+		groups = append(groups, group)
+		if val.Parent != "" {
+			return s.getParents(groups, val.Parent)
+		}
+	}
+	return groups
+}
+
+func removeDuplicateStr(strSlice []string) []string {
+	allKeys := make(map[string]bool)
+	list := []string{}
+	for _, item := range strSlice {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

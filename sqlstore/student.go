@@ -59,7 +59,7 @@ func scanStudent(rows *sql.Rows) (schema.Student, error) {
 		&nextSameCompany,
 		&nextContact,
 		&s.Skip)
-	s.User.Role = schema.Role(role)
+	s.User.Roles = []schema.Role{schema.Role(role)}
 	s.User.LastVisit = nullableTime(lastVisit)
 	if nextPos.Valid {
 		s.Alumni.Contact = nullableString(nextContact)
@@ -101,7 +101,7 @@ func (s *Store) NewStudent(p schema.Person, group string, male bool) error {
 	tx := newTxErr(s.db)
 	u := schema.User{
 		Person: p,
-		Role:   schema.STUDENT,
+		Roles:  []schema.Role{schema.STUDENT},
 	}
 	s.addUser(&tx, u)
 	tx.Update(insertStudent, p.Email, male, group, false)

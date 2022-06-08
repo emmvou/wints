@@ -232,7 +232,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 		Student: schema.Student{
 			User: schema.User{
 				Person: schema.Person{},
-				Role:   schema.STUDENT,
+				Roles:  []schema.Role{schema.STUDENT},
 			},
 			Alumni: &schema.Alumni{},
 		},
@@ -249,8 +249,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 		&c.Student.User.Person.Email,
 		&c.Student.User.LastVisit,
 		&c.Student.Male,
-		&c.Student.Promotion,
-		&c.Student.Major,
+		&c.Student.Group,
 		&nextPosition,
 		&nextFrance,
 		&nextPermanent,
@@ -281,7 +280,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 	c.End = c.End.UTC()
 	c.Creation = c.Creation.UTC()
 
-	c.Tutor.Role = schema.Role(role)
+	c.Tutor.Roles = []schema.Role{schema.Role(role)}
 	if !nextPosition.Valid {
 		c.Student.Alumni = nil
 	} else {
