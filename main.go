@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/emmvou/wints/config"
 	"github.com/emmvou/wints/feeder"
 	"github.com/emmvou/wints/httpd"
 	"github.com/emmvou/wints/jobs"
@@ -18,13 +17,13 @@ import (
 	"github.com/emmvou/wints/notifier"
 	"github.com/emmvou/wints/schema"
 	"github.com/emmvou/wints/sqlstore"
+	"github.com/emmvou/wints/util"
 	"github.com/robfig/cron"
 )
 
 //Version is the running version. Should be set at link time
 var Version = "SNAPSHOT"
 
-var cfg config.Config
 var not *notifier.Notifier
 var store *sqlstore.Store
 var mailer mail.Mailer
@@ -69,9 +68,9 @@ func inviteRoot(em string) {
 
 func newMailer(fake bool) mail.Mailer {
 	if fake {
-		return &mail.Fake{WWW: cfg.HTTPd.WWW, Config: cfg.Mailer}
+		return &mail.Fake{WWW: util.Cfg.HTTPd.WWW, Config: util.Cfg.Mailer}
 	}
-	m, err := mail.NewSMTP(cfg.Mailer, cfg.HTTPd.WWW)
+	m, err := mail.NewSMTP(util.Cfg.Mailer, util.Cfg.HTTPd.WWW)
 	if err != nil {
 		log.Fatalln("SMTP Mailer: " + err.Error())
 	}
@@ -79,28 +78,28 @@ func newMailer(fake bool) mail.Mailer {
 }
 
 func newStore() *sqlstore.Store {
-	DB, err := sql.Open("postgres", cfg.Db.ConnectionString)
+	DB, err := sql.Open("postgres", util.Cfg.Db.ConnectionString)
 	fatal("Database connexion", err)
-	st, _ := sqlstore.NewStore(DB, cfg.Internships)
+	st, _ := sqlstore.NewStore(DB, util.Cfg.Internships)
 	return st
 }
 
 func newFeeder(not *notifier.Notifier) feeder.Conventions {
-	r := feeder.NewHTTPConventionReader(cfg.Feeder.URL, cfg.Feeder.Login, cfg.Feeder.Password)
-	r.Encoding = cfg.Feeder.Encoding
-	f := feeder.NewCsvConventions(r, cfg.Feeder.Promotions)
+	r := feeder.NewHTTPConventionReader(util.Cfg.Feeder.URL, util.Cfg.Feeder.Login, util.Cfg.Feeder.Password)
+	r.Encoding = util.Cfg.Feeder.Encoding
+	f := feeder.NewCsvConventions(r, util.Cfg.Feeder.Promotions)
 	return f
 }
 
 func runSpies() {
 	c := cron.New()
-	if err := c.AddFunc(cfg.Crons.NewsLetters, func() { jobs.MissingReports(store, not) }); err != nil {
+	if err := c.AddFunc(util.Cfg.Crons.NewsLetters, func() { jobs.MissingReports(store, not) }); err != nil {
 		fatal("Unable to cron the missing report scanner", err)
 	}
-	if err := c.AddFunc(cfg.Crons.Surveys, func() { jobs.MissingSurveys(store, not) }); err != nil {
+	if err := c.AddFunc(util.Cfg.Crons.Surveys, func() { jobs.MissingSurveys(store, not) }); err != nil {
 		fatal("Unable to cron the missing survey scanner", err)
 	}
-	/*if err := c.AddFunc(cfg.Crons.Idles, func() { jobs.NeverLogged(store, not) }); err != nil {
+	/*if err := c.AddFunc(Cfg.Crons.Idles, func() { jobs.NeverLogged(store, not) }); err != nil {
 		fatal("Unable to cron the idle student scanner", err)
 	}*/
 
@@ -123,14 +122,14 @@ func insecureServer(listenTo string) {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	fatal("Insecure listening on "+cfg.HTTPd.InsecureListen, nil)
+	fatal("Insecure listening on "+util.Cfg.HTTPd.InsecureListen, nil)
 	err := s.ListenAndServe()
-	fatal("Stop insecure listening on "+cfg.HTTPd.InsecureListen, err)
+	fatal("Stop insecure listening on "+util.Cfg.HTTPd.InsecureListen, err)
 }
 
 func redirectToSecure(w http.ResponseWriter, req *http.Request) {
-	logger.Log("event", "insecure", "redirection to "+cfg.HTTPd.WWW+req.RequestURI, nil)
-	http.Redirect(w, req, cfg.HTTPd.WWW+req.RequestURI, http.StatusMovedPermanently)
+	logger.Log("event", "insecure", "redirection to "+util.Cfg.HTTPd.WWW+req.RequestURI, nil)
+	http.Redirect(w, req, util.Cfg.HTTPd.WWW+req.RequestURI, http.StatusMovedPermanently)
 }
 
 func main() {
@@ -141,20 +140,20 @@ func main() {
 	conf := flag.String("conf", "wints.conf", "Wints configuration file")
 	flag.Parse()
 
-	_, err := toml.DecodeFile(*conf, &cfg)
+	_, err := toml.DecodeFile(*conf, &util.Cfg)
 	if err != nil {
 		log.Fatalf("reading configuration '%s': %s\n", *conf, err.Error())
 	}
 
-	err = logger.SetRoot(cfg.Journal.Path)
-	if len(cfg.Journal.Key) > 0 {
-		logger.Trace(cfg.Journal.Key)
+	err = logger.SetRoot(util.Cfg.Journal.Path)
+	if len(util.Cfg.Journal.Key) > 0 {
+		logger.Trace(util.Cfg.Journal.Key)
 	}
 	fatal("Initiating the logger", err)
 	fatal("Running Version '"+Version+"'", nil)
-	cfg.Internships.Version = Version
+	util.Cfg.Internships.Version = Version
 	mailer = newMailer(*fakeMailer)
-	not = notifier.New(mailer, cfg)
+	not = notifier.New(mailer)
 
 	store = newStore()
 	if *installStore {
@@ -174,9 +173,9 @@ func main() {
 	conventions := newFeeder(not)
 
 	//Insecure listen that only redirect
-	go insecureServer(cfg.HTTPd.InsecureListen)
-	fatal("Listening on "+cfg.HTTPd.WWW, nil)
-	httpd := httpd.NewHTTPd(not, store, conventions, cfg.HTTPd, cfg.Internships)
+	go insecureServer(util.Cfg.HTTPd.InsecureListen)
+	fatal("Listening on "+util.Cfg.HTTPd.WWW, nil)
+	httpd := httpd.NewHTTPd(not, store, conventions)
 	err = httpd.Listen()
-	fatal("Stop listening on "+cfg.HTTPd.WWW, err)
+	fatal("Stop listening on "+util.Cfg.HTTPd.WWW, err)
 }

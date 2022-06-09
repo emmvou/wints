@@ -3,6 +3,7 @@ package schema
 import (
 	"database/sql/driver"
 	"github.com/emmvou/wints/config"
+	"github.com/emmvou/wints/util"
 	"strings"
 	"time"
 )
@@ -143,10 +144,10 @@ func (ss Students) Filter(filter func(Student) bool) Students {
 //StudentInAllGroups is a filter that keeps only the students in the given groups and subgroups recursively
 func StudentInAllGroups(groups []string, tree map[string]*config.Group) func(Student) bool {
 	return func(s Student) bool {
-		studentGroups := getParents(groups, s.Group, tree)
-		studentGroups = removeDuplicateStr(studentGroups)
+		studentGroups := util.GetParents(groups, s.Group)
+		studentGroups = util.RemoveDuplicateStr(studentGroups)
 		for _, sg := range studentGroups {
-			if stringInSlice(sg, groups) {
+			if util.StringInSlice(sg, groups) {
 				return true
 			}
 		}
@@ -182,36 +183,4 @@ func (p Role) AllLevels() int {
 		return RootLevel
 	}
 	return -1
-}
-
-// TODO add error
-func getParents(groups []string, group string, tree map[string]*config.Group) []string {
-	if val, ok := tree[group]; ok {
-		groups = append(groups, group)
-		if val.Parent != "" {
-			return getParents(groups, val.Parent, tree)
-		}
-	}
-	return groups
-}
-
-func removeDuplicateStr(strSlice []string) []string {
-	allKeys := make(map[string]bool)
-	list := []string{}
-	for _, item := range strSlice {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }

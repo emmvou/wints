@@ -2,6 +2,7 @@ package httpd
 
 import (
 	"errors"
+	"github.com/emmvou/wints/util"
 	"net/http"
 	"time"
 
@@ -22,17 +23,17 @@ type HTTPd struct {
 }
 
 //NewHTTPd makes a new HTTP daemon
-func NewHTTPd(not *notifier.Notifier, store *sqlstore.Store, conventions feeder.Conventions, cfg config.HTTPd, org config.Internships) HTTPd {
+func NewHTTPd(not *notifier.Notifier, store *sqlstore.Store, conventions feeder.Conventions) HTTPd {
 
 	//The assets
 	fs := http.FileServer(http.Dir("assets"))
-	http.Handle("/assets/", http.StripPrefix("/"+cfg.Assets, httpgzip.NewHandler(fs)))
+	http.Handle("/assets/", http.StripPrefix("/"+util.Cfg.HTTPd.Assets, httpgzip.NewHandler(fs)))
 	//The rest endpoints
-	rest := NewEndPoints(not, store, conventions, cfg.Rest, org)
-	http.HandleFunc(cfg.Rest.Prefix, Mon(rest.router.ServeHTTP))
+	rest := NewEndPoints(not, store, conventions, util.Cfg.HTTPd.Rest, util.Cfg.Internships)
+	http.HandleFunc(util.Cfg.HTTPd.Rest.Prefix, Mon(rest.router.ServeHTTP))
 
 	httpd := HTTPd{
-		cfg:   cfg,
+		cfg:   util.Cfg.HTTPd,
 		store: store,
 	}
 	//the pages

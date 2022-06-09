@@ -2,6 +2,7 @@ package notifier
 
 import (
 	"fmt"
+	"github.com/emmvou/wints/util"
 	"strconv"
 	"time"
 
@@ -18,9 +19,9 @@ type Notifier struct {
 }
 
 //New creates a new notifier
-func New(m mail.Mailer, cfg config.Config) *Notifier {
+func New(m mail.Mailer) *Notifier {
 	reports := make(map[string]time.Duration)
-	for _, r := range cfg.Internships.Reports {
+	for _, r := range util.Cfg.Internships.Reports {
 		reports[r.Kind] = r.Review.Duration
 	}
 	return &Notifier{mailer: m, reviewDuration: reports}

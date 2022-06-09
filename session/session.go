@@ -4,6 +4,7 @@ package session
 
 import (
 	"errors"
+	"github.com/emmvou/wints/util"
 
 	"github.com/emmvou/wints/config"
 	"github.com/emmvou/wints/feeder"
@@ -37,7 +38,7 @@ func NewSession(u schema.User, store *sqlstore.Store, conventions feeder.Convent
 
 //RmSession delete the session if the emitter is the session owner or at least an admin
 func (s *Session) RmSession(em string) error {
-	if s.Myself(em) || IsAdminAtLeast(s) {
+	if s.Myself(em) || util.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.RmSession(em)
 	}
 	return ErrPermission
@@ -50,6 +51,14 @@ func (s *Session) Me() schema.User {
 
 func (s *Session) Roles() []schema.Role {
 	return s.my.Roles
+}
+
+func (s *Session) RolesAsLevel() []int {
+	var roles []int
+	for _, r := range s.my.Roles {
+		roles = append(roles, r.Level())
+	}
+	return roles
 }
 
 //Myself checks if the given email matches the session one
@@ -71,7 +80,7 @@ func (s *Session) Tutoring(student string) bool {
 //the student tutor
 func (s *Session) Watching(student string) bool {
 	//watching
-	if IsRoleAtLeast(s, schema.HeadLevel) {
+	if util.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
 		return true
 	}
 	c, err := s.store.Convention(student)
@@ -89,7 +98,7 @@ func (s *Session) Watching(student string) bool {
 //JuryOf checks if I am in a jury for a defense.
 //That if indeed I am in the jury, or an admin
 func (s *Session) JuryOf(student string) bool {
-	if IsAdminAtLeast(s) {
+	if util.IsAdminAtLeast(s.RolesAsLevel()) {
 		return true
 	}
 	def, err := s.store.Defense(student)
@@ -113,42 +122,10 @@ func (s *Session) InMyGroups(student string) bool {
 	//get all parents of the group
 	var groups []string
 	for _, group := range s.my.AllSubRoles() {
-		groups = s.getParents(groups, group)
+		groups = util.GetParents(groups, group)
 	}
 	//remove redundancies
-	groups = removeDuplicateStr(groups)
+	groups = util.RemoveDuplicateStr(groups)
 
-	return stringInSlice(stu.Group, groups)
-}
-
-// TODO add error
-func (s *Session) getParents(groups []string, group string) []string {
-	if val, ok := s.groups[group]; ok {
-		groups = append(groups, group)
-		if val.Parent != "" {
-			return s.getParents(groups, val.Parent)
-		}
-	}
-	return groups
-}
-
-func removeDuplicateStr(strSlice []string) []string {
-	allKeys := make(map[string]bool)
-	list := []string{}
-	for _, item := range strSlice {
-		if _, value := allKeys[item]; !value {
-			allKeys[item] = true
-			list = append(list, item)
-		}
-	}
-	return list
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
+	return util.StringInSlice(stu.Group, groups)
 }
