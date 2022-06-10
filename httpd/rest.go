@@ -2,6 +2,7 @@
 package httpd
 
 import (
+	"github.com/emmvou/wints/util"
 	"net/http"
 	"strings"
 	"time"
@@ -141,7 +142,7 @@ func (ed *EndPoints) openSession(w http.ResponseWriter, r *http.Request) (sessio
 		return session.Session{}, err
 	}
 	ed.store.Visit(user.Person.Email)
-	return session.NewSession(user, ed.store, ed.conventions, ed.organization.Groups), err
+	return session.NewSession(user, ed.store, ed.conventions, ed.organization.Tree), err
 }
 
 func (ed *EndPoints) anon(fn EndPoint) httptreemux.HandlerFunc {
@@ -430,7 +431,7 @@ func resetSurvey(ex Exchange) error {
 }
 
 func requestSurvey(ex Exchange) error {
-	if !session.IsAdminAtLeast(&ex.s) {
+	if !util.IsAdminAtLeast(ex.s.RolesAsLevel()) {
 		return session.ErrPermission
 	}
 	stu := ex.V("s")

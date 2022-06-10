@@ -57,7 +57,7 @@ func inviteRoot(em string) {
 		},
 		Roles: []schema.Role{schema.ROOT},
 	}
-	token, err := store.NewUser(u.Person, schema.ROOT)
+	token, err := store.NewUser(u.Person, []schema.Role{schema.ROOT})
 	fatal("Create root account", err)
 	if e := not.InviteRoot(u, u, string(token), err); e != nil {
 		//Here, we delete the account as the root account was not aware of the creation

@@ -52,7 +52,7 @@ type Journal struct {
 
 //Internships declare the internship organization
 type Internships struct {
-	Groups      map[string]*Group
+	Tree        map[string]*Group
 	Reports     []Report
 	Surveys     []Survey
 	LatePenalty int
@@ -74,12 +74,12 @@ func contains(s []string, v string) bool {
 }
 
 func (i Internships) ValidGroup(g string) bool {
-	_, ok := i.Groups[g]
+	_, ok := i.Tree[g]
 	return ok
 }
 
 func (i Internships) GetGroup(id string) *Group {
-	g, ok := i.Groups[id]
+	g, ok := i.Tree[id]
 	if !ok {
 		return nil
 	}

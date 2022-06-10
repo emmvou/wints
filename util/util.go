@@ -31,7 +31,7 @@ func IsRole(roles []int, level int) bool {
 
 // TODO add error
 func GetParents(groups []string, group string) []string {
-	if val, ok := Cfg.Internships.Groups[group]; ok {
+	if val, ok := Cfg.Internships.Tree[group]; ok {
 		groups = append(groups, group)
 		if val.Parent != "" {
 			return GetParents(groups, val.Parent)
