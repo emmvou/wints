@@ -7,48 +7,48 @@ import (
 )
 
 func (s *Session) NewDefenseSession(room string, id string) (schema.DefenseSession, error) {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.NewDefenseSession(room, id)
 	}
 	return schema.DefenseSession{}, ErrPermission
 }
 
 func (s *Session) RmDefenseSession(room string, id string) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.RmDefenseSession(room, id)
 	}
 	return ErrPermission
 }
 
 func (s *Session) SetStudentDefense(session, room, student string, t time.Time, public, local bool) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.SetStudentDefense(session, room, student, t, public, local)
 	}
 	return ErrPermission
 }
 
 func (s *Session) UpdateStudentDefense(student string, t time.Time, public, local bool) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.UpdateStudentDefense(student, t, public, local)
 	}
 	return ErrPermission
 }
 
 func (s *Session) RmDefense(student string) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.RmStudentDefense(student)
 	}
 	return ErrPermission
 }
 func (s *Session) AddJuryToDefenseSession(room, id, jury string) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.AddJuryToDefenseSession(room, id, jury)
 	}
 	return ErrPermission
 }
 
 func (s *Session) DelJuryToDefenseSession(room, id, jury string) error {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.DelJuryToDefenseSession(room, id, jury)
 	}
 	return ErrPermission
@@ -57,7 +57,7 @@ func (s *Session) DelJuryToDefenseSession(room, id, jury string) error {
 //DefenseSessions returns all the sessions
 //Unfiltered for an admin and more. Otherwise, filter out the sessions I am not a jury member of
 func (s *Session) DefenseSessions() ([]schema.DefenseSession, error) {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.DefenseSessions()
 	}
 	//filter out the sessions I am not a jury member of
@@ -86,7 +86,7 @@ func (s *Session) DefenseProgram() ([]schema.DefenseSession, error) {
 	return ss, nil
 }
 func (s *Session) DefenseSession(room, id string) (schema.DefenseSession, error) {
-	if s.Role().Level() >= schema.AdminLevel {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.DefenseSession(room, id)
 	}
 	//Return the whole session if jury

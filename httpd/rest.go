@@ -2,7 +2,6 @@
 package httpd
 
 import (
-	"github.com/emmvou/wints/util"
 	"net/http"
 	"strings"
 	"time"
@@ -431,7 +430,7 @@ func resetSurvey(ex Exchange) error {
 }
 
 func requestSurvey(ex Exchange) error {
-	if !util.IsAdminAtLeast(ex.s.RolesAsLevel()) {
+	if !schema.IsAdminAtLeast(ex.s.RolesAsLevel()) {
 		return session.ErrPermission
 	}
 	stu := ex.V("s")

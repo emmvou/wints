@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"github.com/emmvou/wints/config"
 	"log"
 	"net/http"
 	"os"
@@ -17,7 +18,6 @@ import (
 	"github.com/emmvou/wints/notifier"
 	"github.com/emmvou/wints/schema"
 	"github.com/emmvou/wints/sqlstore"
-	"github.com/emmvou/wints/util"
 	"github.com/robfig/cron"
 )
 
@@ -68,9 +68,9 @@ func inviteRoot(em string) {
 
 func newMailer(fake bool) mail.Mailer {
 	if fake {
-		return &mail.Fake{WWW: util.Cfg.HTTPd.WWW, Config: util.Cfg.Mailer}
+		return &mail.Fake{WWW: config.Cfg.HTTPd.WWW, Config: config.Cfg.Mailer}
 	}
-	m, err := mail.NewSMTP(util.Cfg.Mailer, util.Cfg.HTTPd.WWW)
+	m, err := mail.NewSMTP(config.Cfg.Mailer, config.Cfg.HTTPd.WWW)
 	if err != nil {
 		log.Fatalln("SMTP Mailer: " + err.Error())
 	}
@@ -78,25 +78,25 @@ func newMailer(fake bool) mail.Mailer {
 }
 
 func newStore() *sqlstore.Store {
-	DB, err := sql.Open("postgres", util.Cfg.Db.ConnectionString)
+	DB, err := sql.Open("postgres", config.Cfg.Db.ConnectionString)
 	fatal("Database connexion", err)
-	st, _ := sqlstore.NewStore(DB, util.Cfg.Internships)
+	st, _ := sqlstore.NewStore(DB, config.Cfg.Internships)
 	return st
 }
 
 func newFeeder(not *notifier.Notifier) feeder.Conventions {
-	r := feeder.NewHTTPConventionReader(util.Cfg.Feeder.URL, util.Cfg.Feeder.Login, util.Cfg.Feeder.Password)
-	r.Encoding = util.Cfg.Feeder.Encoding
-	f := feeder.NewCsvConventions(r, util.Cfg.Feeder.Promotions)
+	r := feeder.NewHTTPConventionReader(config.Cfg.Feeder.URL, config.Cfg.Feeder.Login, config.Cfg.Feeder.Password)
+	r.Encoding = config.Cfg.Feeder.Encoding
+	f := feeder.NewCsvConventions(r, config.Cfg.Feeder.Promotions)
 	return f
 }
 
 func runSpies() {
 	c := cron.New()
-	if err := c.AddFunc(util.Cfg.Crons.NewsLetters, func() { jobs.MissingReports(store, not) }); err != nil {
+	if err := c.AddFunc(config.Cfg.Crons.NewsLetters, func() { jobs.MissingReports(store, not) }); err != nil {
 		fatal("Unable to cron the missing report scanner", err)
 	}
-	if err := c.AddFunc(util.Cfg.Crons.Surveys, func() { jobs.MissingSurveys(store, not) }); err != nil {
+	if err := c.AddFunc(config.Cfg.Crons.Surveys, func() { jobs.MissingSurveys(store, not) }); err != nil {
 		fatal("Unable to cron the missing survey scanner", err)
 	}
 	/*if err := c.AddFunc(Cfg.Crons.Idles, func() { jobs.NeverLogged(store, not) }); err != nil {
@@ -122,14 +122,14 @@ func insecureServer(listenTo string) {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
-	fatal("Insecure listening on "+util.Cfg.HTTPd.InsecureListen, nil)
+	fatal("Insecure listening on "+config.Cfg.HTTPd.InsecureListen, nil)
 	err := s.ListenAndServe()
-	fatal("Stop insecure listening on "+util.Cfg.HTTPd.InsecureListen, err)
+	fatal("Stop insecure listening on "+config.Cfg.HTTPd.InsecureListen, err)
 }
 
 func redirectToSecure(w http.ResponseWriter, req *http.Request) {
-	logger.Log("event", "insecure", "redirection to "+util.Cfg.HTTPd.WWW+req.RequestURI, nil)
-	http.Redirect(w, req, util.Cfg.HTTPd.WWW+req.RequestURI, http.StatusMovedPermanently)
+	logger.Log("event", "insecure", "redirection to "+config.Cfg.HTTPd.WWW+req.RequestURI, nil)
+	http.Redirect(w, req, config.Cfg.HTTPd.WWW+req.RequestURI, http.StatusMovedPermanently)
 }
 
 func main() {
@@ -140,18 +140,18 @@ func main() {
 	conf := flag.String("conf", "wints.conf", "Wints configuration file")
 	flag.Parse()
 
-	_, err := toml.DecodeFile(*conf, &util.Cfg)
+	_, err := toml.DecodeFile(*conf, &config.Cfg)
 	if err != nil {
 		log.Fatalf("reading configuration '%s': %s\n", *conf, err.Error())
 	}
 
-	err = logger.SetRoot(util.Cfg.Journal.Path)
-	if len(util.Cfg.Journal.Key) > 0 {
-		logger.Trace(util.Cfg.Journal.Key)
+	err = logger.SetRoot(config.Cfg.Journal.Path)
+	if len(config.Cfg.Journal.Key) > 0 {
+		logger.Trace(config.Cfg.Journal.Key)
 	}
 	fatal("Initiating the logger", err)
 	fatal("Running Version '"+Version+"'", nil)
-	util.Cfg.Internships.Version = Version
+	config.Cfg.Internships.Version = Version
 	mailer = newMailer(*fakeMailer)
 	not = notifier.New(mailer)
 
@@ -173,9 +173,9 @@ func main() {
 	conventions := newFeeder(not)
 
 	//Insecure listen that only redirect
-	go insecureServer(util.Cfg.HTTPd.InsecureListen)
-	fatal("Listening on "+util.Cfg.HTTPd.WWW, nil)
+	go insecureServer(config.Cfg.HTTPd.InsecureListen)
+	fatal("Listening on "+config.Cfg.HTTPd.WWW, nil)
 	httpd := httpd.NewHTTPd(not, store, conventions)
 	err = httpd.Listen()
-	fatal("Stop listening on "+util.Cfg.HTTPd.WWW, err)
+	fatal("Stop listening on "+config.Cfg.HTTPd.WWW, err)
 }

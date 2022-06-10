@@ -1,43 +1,13 @@
 package util
 
-import (
-	"github.com/emmvou/wints/config"
-	"github.com/emmvou/wints/schema"
-)
-
-var Cfg config.Config
-
-func IsAdminAtLeast(roles []int) bool {
-	return IsRoleAtLeast(roles, schema.AdminLevel)
-}
-
-func IsRoleAtLeast(roles []int, level int) bool {
-	return anyI(roles, func(r int) bool { return r >= level })
-}
-
-//any item from roles validates predicate
-func anyI(roles []int, predicate func(r int) bool) bool {
+//AnyI item from roles validates predicate
+func AnyI(roles []int, predicate func(r int) bool) bool {
 	for _, s := range roles {
 		if predicate(s) {
 			return true
 		}
 	}
 	return false
-}
-
-func IsRole(roles []int, level int) bool {
-	return anyI(roles, func(r int) bool { return r == level })
-}
-
-// TODO add error
-func GetParents(groups []string, group string) []string {
-	if val, ok := Cfg.Internships.Tree[group]; ok {
-		groups = append(groups, group)
-		if val.Parent != "" {
-			return GetParents(groups, val.Parent)
-		}
-	}
-	return groups
 }
 
 func RemoveDuplicateStr(strSlice []string) []string {

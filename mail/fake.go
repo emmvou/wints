@@ -2,6 +2,7 @@ package mail
 
 import (
 	"fmt"
+	"github.com/emmvou/wints/config"
 	"os"
 
 	"github.com/emmvou/wints/logger"
@@ -10,7 +11,7 @@ import (
 
 //Fake to mock the mailing system
 type Fake struct {
-	Config Config
+	Config config.MailConfig
 	WWW    string
 }
 

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/emmvou/wints/mail"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )
@@ -89,7 +88,7 @@ Cron = "0 0 9 * * 1"
 			Encoding:   "windows-1252",
 			Promotions: []string{"SI 5", "Master IFI", "Master IMAFA", "MAM 5", "Master 2 SSTIM-images"},
 		},
-		Mailer: mail.Config{
+		Mailer: MailConfig{
 			Server:   "smtp.inria.fr:507",
 			Login:    "fooMailer",
 			Password: "barMailer",

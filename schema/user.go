@@ -142,9 +142,9 @@ func (ss Students) Filter(filter func(Student) bool) Students {
 }
 
 //StudentInAllGroups is a filter that keeps only the students in the given groups and subgroups recursively
-func StudentInAllGroups(groups []string, tree map[string]*config.Group) func(Student) bool {
+func StudentInAllGroups(groups []string) func(Student) bool {
 	return func(s Student) bool {
-		studentGroups := util.GetParents(groups, s.Group)
+		studentGroups := config.GetParents(groups, s.Group)
 		studentGroups = util.RemoveDuplicateStr(studentGroups)
 		for _, sg := range studentGroups {
 			if util.StringInSlice(sg, groups) {
@@ -155,7 +155,7 @@ func StudentInAllGroups(groups []string, tree map[string]*config.Group) func(Stu
 	}
 }
 
-//AllSubRole extract all the second levels role if exist.
+//AllSubRoles extract all the second levels role if exist.
 func (u User) AllSubRoles() []string {
 	res := make([]string, 0)
 	for _, r := range u.Roles {
@@ -169,7 +169,7 @@ func (u User) AllSubRoles() []string {
 	return res
 }
 
-//Level returns the authentication level associated to a given role
+//AllLevels returns the authentication level associated to a given role
 func (p Role) AllLevels() int {
 	if p == "student" {
 		return StudentLevel

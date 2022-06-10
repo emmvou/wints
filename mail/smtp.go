@@ -3,6 +3,7 @@ package mail
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/emmvou/wints/config"
 	"net"
 	"net/smtp"
 	"os"
@@ -23,16 +24,6 @@ type SMTP struct {
 	fullname string
 }
 
-//Config configures the SMTP-based mailer
-type Config struct {
-	Server   string
-	Login    string
-	Password string
-	Sender   string
-	Path     string
-	Fullname string
-}
-
 type metaData struct {
 	To       schema.Person
 	WWW      string
@@ -41,7 +32,7 @@ type metaData struct {
 }
 
 //NewSMTP creates a new SMTP mailer
-func NewSMTP(cfg Config, www string) (*SMTP, error) {
+func NewSMTP(cfg config.MailConfig, www string) (*SMTP, error) {
 	hostname, _, err := net.SplitHostPort(cfg.Server)
 	if err != nil {
 		return &SMTP{}, err

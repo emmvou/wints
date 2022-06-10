@@ -2,12 +2,11 @@ package session
 
 import (
 	"github.com/emmvou/wints/schema"
-	"github.com/emmvou/wints/util"
 )
 
 //SetStudentSkippable change the skippable status if the emitter is a major leader at minimum
 func (s *Session) SetStudentSkippable(em string, st bool) error {
-	if util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.SetStudentSkippable(em, st)
 	}
 	return ErrPermission
@@ -16,11 +15,11 @@ func (s *Session) SetStudentSkippable(em string, st bool) error {
 //Students lists all the students if the emitter is an admin at least
 func (s *Session) Students() (schema.Students, error) { //TODO change when supervisors changed
 	students, err := s.store.Students()
-	if util.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
+	if schema.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
 		return students, err
 	}
-	if util.IsRole(s.RolesAsLevel(), schema.SupervisorLevel) {
-		return students.Filter(schema.StudentInAllGroups(s.my.AllSubRoles(), s.groups)), err
+	if schema.IsRole(s.RolesAsLevel(), schema.SupervisorLevel) {
+		return students.Filter(schema.StudentInAllGroups(s.my.AllSubRoles())), err
 	}
 	return []schema.Student{}, ErrPermission
 }
@@ -36,15 +35,15 @@ func (s *Session) Student(stu string) (schema.Student, error) {
 //SetAlumni changes the student next position if the emitter is the targetted student,
 //the tutor, a member of his jury or a major leader at minimum
 func (s *Session) SetAlumni(student string, a schema.Alumni) error {
-	if s.Myself(student) || util.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) || s.Tutoring(student) || s.JuryOf(student) {
+	if s.Myself(student) || schema.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) || s.Tutoring(student) || s.JuryOf(student) {
 		return s.store.SetAlumni(student, a)
 	}
 	return ErrPermission
 }
 
-//SetPromotion changes the student group if the emitter is the student themselves or a major leader at least
+//SetGroup changes the student group if the emitter is the student themselves or a group leader at least
 func (s *Session) SetGroup(student string, g string) error {
-	if s.Myself(student) || util.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) {
+	if s.Myself(student) || schema.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) {
 		return s.store.SetGroup(student, g)
 	}
 	return ErrPermission
@@ -52,7 +51,7 @@ func (s *Session) SetGroup(student string, g string) error {
 
 //SetMale changes the student gender if the emitter is the student itself, the tutor or an admin at minimum
 func (s *Session) SetMale(student string, male bool) error {
-	if s.Myself(student) || s.Tutoring(student) || util.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) {
+	if s.Myself(student) || s.Tutoring(student) || schema.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) {
 		return s.store.SetMale(student, male)
 	}
 	return ErrPermission

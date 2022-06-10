@@ -38,7 +38,7 @@ func NewSession(u schema.User, store *sqlstore.Store, conventions feeder.Convent
 
 //RmSession delete the session if the emitter is the session owner or at least an admin
 func (s *Session) RmSession(em string) error {
-	if s.Myself(em) || util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(em) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.RmSession(em)
 	}
 	return ErrPermission
@@ -75,12 +75,12 @@ func (s *Session) Tutoring(student string) bool {
 	return c.Tutor.Person.Email == s.my.Person.Email
 }
 
-// TODO inject group arborescence
 //Watching checks if the student is in the major I am the leader of, a head or not or
 //the student tutor
+// TODO inject group arborescence
 func (s *Session) Watching(student string) bool {
 	//watching
-	if util.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
+	if schema.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
 		return true
 	}
 	c, err := s.store.Convention(student)
@@ -98,7 +98,7 @@ func (s *Session) Watching(student string) bool {
 //JuryOf checks if I am in a jury for a defense.
 //That if indeed I am in the jury, or an admin
 func (s *Session) JuryOf(student string) bool {
-	if util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return true
 	}
 	def, err := s.store.Defense(student)
@@ -122,7 +122,7 @@ func (s *Session) InMyGroups(student string) bool {
 	//get all parents of the group
 	var groups []string
 	for _, group := range s.my.AllSubRoles() {
-		groups = util.GetParents(groups, group)
+		groups = config.GetParents(groups, group)
 	}
 	//remove redundancies
 	groups = util.RemoveDuplicateStr(groups)

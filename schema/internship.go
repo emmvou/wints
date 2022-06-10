@@ -107,9 +107,9 @@ func Tutoring(tut string) func(Internship) bool {
 }
 
 //InGroups is a filter that keeps only the internships in the given groups and subgroups recursively
-func InGroups(groups []string, tree map[string]*config.Group) func(Internship) bool {
+func InGroups(groups []string) func(Internship) bool {
 	return func(i Internship) bool {
-		studentGroups := util.GetParents(groups, i.Convention.Student.Group)
+		studentGroups := config.GetParents(groups, i.Convention.Student.Group)
 		studentGroups = util.RemoveDuplicateStr(studentGroups)
 		for _, sg := range studentGroups {
 			if util.StringInSlice(sg, groups) {

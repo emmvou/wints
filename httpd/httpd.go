@@ -2,7 +2,6 @@ package httpd
 
 import (
 	"errors"
-	"github.com/emmvou/wints/util"
 	"net/http"
 	"time"
 
@@ -27,13 +26,13 @@ func NewHTTPd(not *notifier.Notifier, store *sqlstore.Store, conventions feeder.
 
 	//The assets
 	fs := http.FileServer(http.Dir("assets"))
-	http.Handle("/assets/", http.StripPrefix("/"+util.Cfg.HTTPd.Assets, httpgzip.NewHandler(fs)))
+	http.Handle("/assets/", http.StripPrefix("/"+config.Cfg.HTTPd.Assets, httpgzip.NewHandler(fs)))
 	//The rest endpoints
-	rest := NewEndPoints(not, store, conventions, util.Cfg.HTTPd.Rest, util.Cfg.Internships)
-	http.HandleFunc(util.Cfg.HTTPd.Rest.Prefix, Mon(rest.router.ServeHTTP))
+	rest := NewEndPoints(not, store, conventions, config.Cfg.HTTPd.Rest, config.Cfg.Internships)
+	http.HandleFunc(config.Cfg.HTTPd.Rest.Prefix, Mon(rest.router.ServeHTTP))
 
 	httpd := HTTPd{
-		cfg:   util.Cfg.HTTPd,
+		cfg:   config.Cfg.HTTPd,
 		store: store,
 	}
 	//the pages

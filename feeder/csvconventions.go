@@ -137,7 +137,7 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 		stu := schema.Student{
 			User: schema.User{
 				Person: student,
-				Role:   schema.STUDENT,
+				Roles:  []schema.Role{schema.STUDENT},
 			},
 			Promotion: prom,
 			Skip:      false,
@@ -178,7 +178,7 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 			Company:        cpy,
 			Tutor: schema.User{
 				Person: tutor,
-				Role:   schema.TUTOR,
+				Roles:  []schema.Role{schema.TUTOR},
 			},
 		}
 		lasts[c.Student.User.Person.Email] = c

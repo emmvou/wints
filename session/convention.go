@@ -3,12 +3,11 @@ package session
 import (
 	"github.com/emmvou/wints/feeder"
 	"github.com/emmvou/wints/schema"
-	"github.com/emmvou/wints/util"
 )
 
 //Conventions lists the conventions if the emitter is an admin at minimum
 func (s *Session) Conventions() ([]schema.Convention, *feeder.ImportError) {
-	if util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.conventions.Import()
 	}
 	ierr := feeder.NewImportError()
@@ -18,7 +17,7 @@ func (s *Session) Conventions() ([]schema.Convention, *feeder.ImportError) {
 
 //Convention returns the convention of a given student if the emitter is the student or at least an admin
 func (s *Session) Convention(stu string) (schema.Convention, error) {
-	if s.Myself(stu) || util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.Convention(stu)
 	}
 	return schema.Convention{}, ErrPermission
@@ -26,7 +25,7 @@ func (s *Session) Convention(stu string) (schema.Convention, error) {
 
 //SetSupervisor changes the supervisor if the emitter is the student or an admin at minimum
 func (s *Session) SetSupervisor(stu string, sup schema.Person) error {
-	if s.Myself(stu) || util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.SetSupervisor(stu, sup)
 	}
 	return ErrPermission
@@ -34,7 +33,7 @@ func (s *Session) SetSupervisor(stu string, sup schema.Person) error {
 
 //SetTutor changes the tutor if the emitter is an admin at minimum
 func (s *Session) SetTutor(stu string, t string) error {
-	if util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.SetTutor(stu, t)
 	}
 	return ErrPermission
@@ -42,7 +41,7 @@ func (s *Session) SetTutor(stu string, t string) error {
 
 //SetCompany changes the company if the emitter is the student or an admin at minimum
 func (s *Session) SetCompany(stu string, c schema.Company) error {
-	if s.Myself(stu) || util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.SetCompany(stu, c)
 	}
 	return ErrPermission
@@ -50,24 +49,24 @@ func (s *Session) SetCompany(stu string, c schema.Company) error {
 
 //NewInternship validates the convention if the emitter is an admin at minimum
 func (s *Session) NewInternship(c schema.Convention) (schema.Internship, []byte, error) {
-	if util.IsAdminAtLeast(s.RolesAsLevel()) {
+	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
 		return s.store.NewInternship(c)
 	}
 	return schema.Internship{}, []byte{}, ErrPermission
 }
 
-// TODO pass group architecture as argument
 //Internships list the internships if the emitter is at least a major leader.
 //Otherwise, all the internships now tutored by the emitter are removed
+// TODO pass group architecture as argument
 func (s *Session) Internships() (schema.Internships, error) {
 	is, err := s.store.Internships()
-	if util.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
+	if schema.IsRoleAtLeast(s.RolesAsLevel(), schema.HeadLevel) {
 		return is, err
-	} else if util.IsRole(s.RolesAsLevel(), schema.SupervisorLevel) {
+	} else if schema.IsRole(s.RolesAsLevel(), schema.SupervisorLevel) {
 		//All the student that are in the major plus the tutored students
-		l1 := is.Filter(schema.InGroups(s.my.AllSubRoles(), s.groups), schema.Tutoring(s.my.Person.Email))
+		l1 := is.Filter(schema.InGroups(s.my.AllSubRoles()), schema.Tutoring(s.my.Person.Email))
 		return l1, err
-	} else if util.IsRole(s.RolesAsLevel(), schema.TutorLevel) {
+	} else if schema.IsRole(s.RolesAsLevel(), schema.TutorLevel) {
 		return is.Filter(schema.Tutoring(s.my.Person.Email)), err
 	}
 	//Return the anonymised version

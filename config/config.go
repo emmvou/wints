@@ -1,8 +1,6 @@
 //Package config aggregates the necessary material to configure the wints daemon
 package config
 
-import "github.com/emmvou/wints/mail"
-
 var (
 	//DateTimeLayout expresses the expected format for a date + time
 	DateTimeLayout = "02/01/2006 15:04"
@@ -59,6 +57,7 @@ type Internships struct {
 	Version     string
 }
 
+//Group represents a group the students can belong to, groups follow a tree structure
 type Group struct {
 	Name   string
 	Parent string
@@ -116,9 +115,19 @@ type Crons struct {
 type Config struct {
 	Feeder      Feeder
 	Db          Db
-	Mailer      mail.Config
+	Mailer      MailConfig
 	HTTPd       HTTPd
 	Journal     Journal
 	Internships Internships
 	Crons       Crons
+}
+
+//MailConfig configures the SMTP-based mailer
+type MailConfig struct {
+	Server   string
+	Login    string
+	Password string
+	Sender   string
+	Path     string
+	Fullname string
 }
