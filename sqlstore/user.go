@@ -13,17 +13,19 @@ import (
 )
 
 var (
-	selectUser                   = "select firstname, lastname, email, tel, role, lastVisit from users where email=$1"
-	insertUser                   = "insert into users(firstname, lastname, tel, email, role, password) values ($1,$2,$3,$4,$5,$6)"
+	selectUser                   = "select firstname, lastname, email, tel, lastVisit from users where email=$1"
+	insertUser                   = "insert into users(firstname, lastname, tel, email, role, password) values ($1,$2,$3,$4,$5,$6)" // TODO
 	startPasswordRenewal         = "insert into password_renewal(email,token) values($1,$2)"
 	updateLastVisit              = "update users set lastVisit=$1 where email=$2"
 	updateUserProfile            = "update users set firstname=$1, lastname=$2, tel=$3 where email=$4"
-	updateUserRole               = "update users set role=$2 where email=$1 and role != 'student'" //cannot change the role of a student
+	updateUserRole               = "update users set role=$2 where email=$1 and role != 'student'" //cannot change the role of a student // TODO
 	updateUserPassword           = "update users set password=$2 where email=$1"
 	updateEmail                  = "update users set email=$2 where email=$1"
 	deletePasswordRenewalRequest = "delete from password_renewal where email=$1"
 	deleteUser                   = "DELETE FROM users where email=$1"
-	allUsers                     = "select firstname, lastname, email, tel, role, lastVisit from users"
+	allUsers                     = "select u.firstname, u.lastname, u.email, u.tel, u.lastVisit from users u"
+	allUserRoles                 = "select u.email, r.role from users u join userroles ur on u.email=ur.user join roles r on ur.role=r.id"
+	allRoles                     = "select role from roles"
 	selectPassword               = "select password from users where email=$1"
 	emailFromRenewableToken      = "select email from password_renewal where token=$1"
 	replaceTutorInConventions    = "update conventions set tutor=$2 where tutor=$1"
@@ -55,7 +57,7 @@ func (s *Store) addUser(tx *TxErr, u schema.User) {
 		u.Person.Lastname,
 		u.Person.Tel,
 		u.Person.Email,
-		u.Role.String(),
+		u.Role.String(), // TODO
 		randomBytes(32),
 	)
 	tx.Exec(insertAlias, u.Person.Email, u.Person.Email)
@@ -67,24 +69,46 @@ func (s *Store) Visit(u string) error {
 }
 
 func scanUser(row *sql.Rows) (schema.User, error) {
-	u := schema.User{Person: schema.Person{}}
+	u := schema.User{
+		Person: schema.Person{},
+		Roles:  []schema.Role{},
+	}
 	var last pq.NullTime
-	var r string
+	var roles []string
 	err := row.Scan(
 		&u.Person.Firstname,
 		&u.Person.Lastname,
 		&u.Person.Email,
 		&u.Person.Tel,
-		&r,
 		&last,
+		&roles,
 	)
-	u.Roles = []schema.Role{schema.Role(r)}
 	u.LastVisit = nullableTime(last)
 	return u, err
 }
 
-//User returns the given user account
-func (s *Store) User(email string) (schema.User, error) {
+func scanUserRole(row *sql.Rows) (schema.UserRole, error) {
+	ur := schema.UserRole{
+		Role: schema.Role(""),
+	}
+	err := row.Scan(
+		&ur.User,
+		&ur.Role,
+	)
+	return ur, err
+}
+
+func scanRole(rows *sql.Rows) (schema.Role, error) {
+	ur := schema.Role("")
+	var role string
+	err := rows.Scan(
+		&role,
+	)
+	ur = schema.Role(role)
+	return ur, err
+}
+
+func (s *Store) user(email string) (schema.User, error) {
 	st := s.stmt(selectUser)
 	rows, err := st.Query(email)
 	if err != nil {
@@ -97,8 +121,35 @@ func (s *Store) User(email string) (schema.User, error) {
 	return scanUser(rows)
 }
 
-//Users list all the registered users
-func (s *Store) Users() ([]schema.User, error) {
+//User returns the given user account
+func (s *Store) User(email string) (schema.User, error) {
+	user, err := s.user(email)
+	if err != nil {
+		return schema.User{}, err
+	}
+	roles, err := s.Roles()
+	if err != nil {
+		return schema.User{}, err
+	}
+	userRoles, err := s.userRoles()
+	if err != nil {
+		return schema.User{}, err
+	}
+	// yes, this is a bit ugly, but it's the only way to do it
+	for _, ur := range userRoles {
+		if ur.User == user.Person.Email {
+			for _, r := range roles {
+				if r.String() == ur.Role.String() {
+					user.Roles = append(user.Roles, r)
+				}
+			}
+		}
+	}
+
+	return user, nil
+}
+
+func (s *Store) users() ([]schema.User, error) {
 	var users []schema.User
 	st := s.stmt(allUsers)
 	rows, err := st.Query()
@@ -116,6 +167,75 @@ func (s *Store) Users() ([]schema.User, error) {
 	return users, nil
 }
 
+//Users list all the registered users
+func (s *Store) Users() ([]schema.User, error) {
+	users, err := s.users()
+	if err != nil {
+		return []schema.User{}, err
+	}
+	roles, err := s.Roles()
+	if err != nil {
+		return []schema.User{}, err
+	}
+	userRoles, err := s.userRoles()
+	if err != nil {
+		return []schema.User{}, err
+	}
+	// yes, this is a bit ugly, but it's the only way to do it
+	for _, u := range users {
+		for _, ur := range userRoles {
+			if ur.User == u.Person.Email {
+				for _, r := range roles {
+					if r.String() == ur.Role.String() {
+						u.Roles = append(u.Roles, r)
+					}
+				}
+			}
+		}
+	}
+
+	return users, nil
+}
+
+//Users list all the registered users
+func (s *Store) userRoles() ([]schema.UserRole, error) {
+	var users []schema.UserRole
+	st := s.stmt(allUserRoles)
+	rows, err := st.Query()
+	if err != nil {
+		return users, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		u, err := scanUserRole(rows)
+		if err != nil {
+			return users, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}
+
+//Roles list all possible roles
+func (s *Store) Roles() ([]schema.Role, error) {
+	var roles []schema.Role
+	st := s.stmt(allRoles)
+	rows, err := st.Query()
+	if err != nil {
+		return roles, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		r, err := scanRole(rows)
+		if err != nil {
+			return roles, err
+		}
+		roles = append(roles, r)
+	}
+
+	return roles, nil
+}
+
 //SetUserPerson changes the user profile if exists
 func (s *Store) SetUserPerson(p schema.Person) error {
 	return s.singleUpdate(updateUserProfile, schema.ErrUnknownUser, p.Firstname, p.Lastname, p.Tel, p.Email)
@@ -123,7 +243,7 @@ func (s *Store) SetUserPerson(p schema.Person) error {
 
 //SetUserRole updates the user privilege
 func (s *Store) SetUserRole(email string, priv schema.Role) error {
-	return s.singleUpdate(updateUserRole, schema.ErrUnknownUser, email, priv)
+	return s.singleUpdate(updateUserRole, schema.ErrUnknownUser, email, priv) // TODO
 }
 
 //ResetPassword starts a reset procedure
@@ -171,7 +291,7 @@ func (s *Store) NewUser(p schema.Person, roles []schema.Role) ([]byte, error) {
 	}
 	token := randomBytes(32)
 	tx := newTxErr(s.db)
-	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, roles.String(), randomBytes(32))
+	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, roles.String(), randomBytes(32)) // TODO
 	if nb == 0 {
 		tx.err = schema.ErrUserExists
 	}

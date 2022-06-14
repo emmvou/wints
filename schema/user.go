@@ -80,6 +80,12 @@ type User struct {
 	LastVisit *time.Time `,json:"omitempty"`
 }
 
+//UserRole is a person with an account + a role
+type UserRole struct {
+	User string
+	Role Role
+}
+
 //Alumni denotes the basic information for a student future
 type Alumni struct {
 	Contact     string

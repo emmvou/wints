@@ -12,6 +12,8 @@ drop table if exists surveys cascade;
 drop table if exists defenseSessions cascade;
 drop table if exists defenses cascade;
 drop table if exists defenseJuries cascade;
+drop table if exists roles cascade;
+drop table if exists userroles cascade;
 
 create table users(
     email text,
@@ -22,6 +24,19 @@ create table users(
     role text,
     lastVisit timestamp without time zone,
     constraint pk_email PRIMARY KEY(email)
+);
+
+create table roles(
+    id text,
+	constraint pk_id PRIMARY KEY(id)
+);
+
+create table userroles(
+	user text,
+	role text,
+	constraint fk_userroles_user FOREIGN KEY(user) REFERENCES users(email),
+	constraint fk_userroles_role FOREIGN KEY(role) REFERENCES roles(id),
+	constraint pk_userroles PRIMARY KEY(user, role)	
 );
 
 create table aliases(

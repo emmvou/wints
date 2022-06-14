@@ -102,13 +102,13 @@ func cleanInt(str string) int {
 func parseTime(fmt, buf string, student schema.Student) (time.Time, error) {
 	return time.Parse(fmt, clean(buf))
 }
-func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
+func (f *CsvConventions) scan(group string) ([]schema.Convention, *ImportError) {
 	ierr := NewImportError()
 	var conventions []schema.Convention
 	lasts := make(map[string]schema.Convention)
-	r, err := f.Reader.Reader(f.Year, prom)
+	r, err := f.Reader.Reader(f.Year, group)
 	if err != nil {
-		ierr.NewWarning("(" + prom + ") : " + err.Error())
+		ierr.NewWarning("(" + group + ") : " + err.Error())
 		return conventions, ierr
 	}
 	in := csv.NewReader(r)
@@ -122,7 +122,7 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			ierr.NewWarning("(" + prom + ") : " + err.Error())
+			ierr.NewWarning("(" + group + ") : " + err.Error())
 			return conventions, ierr
 		}
 		student := cleanPerson(record[stuFn], record[stuLn], record[stuEmail], record[stuTel])
@@ -139,9 +139,9 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 				Person: student,
 				Roles:  []schema.Role{schema.STUDENT},
 			},
-			Promotion: prom,
-			Skip:      false,
-			Male:      male,
+			Group: "si5" + group, // TODO change, it is hard coded for now
+			Skip:  false,
+			Male:  male,
 		}
 		var lastEdit string = ""
 		if record[timestamp] != "" {
@@ -152,17 +152,17 @@ func (f *CsvConventions) scan(prom string) ([]schema.Convention, *ImportError) {
 
 		ts, err := parseTime("2006-01-02", lastEdit, stu)
 		if err != nil {
-			ierr.NewWarning("(" + prom + ") " + stu.User.Fullname() + ": " + err.Error())
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
 			continue
 		}
 		startTime, err := parseTime("2006-01-02", record[begin], stu)
 		if err != nil {
-			ierr.NewWarning("(" + prom + ") " + stu.User.Fullname() + ": " + err.Error())
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
 			continue
 		}
 		endTime, err := parseTime("2006-01-02", record[end], stu)
 		if err != nil {
-			ierr.NewWarning("(" + prom + ") " + stu.User.Fullname() + ": " + err.Error())
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
 			continue
 		}
 		//The to-valid users

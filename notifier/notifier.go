@@ -160,7 +160,7 @@ func (n *Notifier) InviteStudent(from schema.User, i schema.Internship, token st
 }
 
 func (n *Notifier) invite(from schema.User, u schema.User, token string, tpl string, err error) error {
-	userLog(from, u.Person.Email+" invited as "+u.Role.String(), err)
+	userLog(from, u.Person.Email+" invited as "+concatRoles(u.Roles), err)
 	if err != nil {
 		return err
 	}
@@ -171,6 +171,17 @@ func (n *Notifier) invite(from schema.User, u schema.User, token string, tpl str
 	err = n.mailer.Send(u.Person, tpl, data)
 	userLog(from, "invitation sent", err)
 	return err
+}
+
+func concatRoles(roles []schema.Role) string {
+	res := roles[0].String()
+	if len(roles) > 1 {
+		for _, role := range roles[1 : len(roles)-1] {
+			res += ", " + role.String()
+		}
+		res += " and " + roles[len(roles)-1].String()
+	}
+	return res
 }
 
 //PasswordChanged logs the event and notify the target
@@ -199,7 +210,7 @@ func (n *Notifier) InviteRoot(from schema.User, u schema.User, token string, err
 
 //NewStudent logs the student addition
 func (n *Notifier) NewStudent(from schema.User, st schema.Student, err error) {
-	userLog(from, "new student "+st.User.Fullname()+" ("+st.User.Person.Email+") "+st.Major+"/"+st.Promotion, err)
+	userLog(from, "new student "+st.User.Fullname()+" ("+st.User.Person.Email+") "+st.Group, err)
 }
 
 //SkipStudent logs the change
