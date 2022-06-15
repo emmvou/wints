@@ -21,7 +21,6 @@ create table users(
     lastname text,
     tel text,
     password text,
-    role text,
     lastVisit timestamp without time zone,
     constraint pk_email PRIMARY KEY(email)
 );

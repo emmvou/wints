@@ -5,6 +5,8 @@ import "errors"
 var (
 	//ErrUnknownStudent declares the student is unknown
 	ErrUnknownStudent = errors.New("Unknown student")
+	//ErrRolesConflict user cannot have multiple roles including student
+	ErrRolesConflict = errors.New("user cannot have multiple roles including student")
 	//ErrUnknownConvention declares the convention is unknown
 	ErrUnknownConvention = errors.New("No convention associated to this student")
 	//ErrStudentExists declares the student already exists

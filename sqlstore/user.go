@@ -3,6 +3,7 @@ package sqlstore
 import (
 	"database/sql"
 	"errors"
+	"github.com/emmvou/wints/util"
 	"strings"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 
 var (
 	selectUser                   = "select firstname, lastname, email, tel, lastVisit from users where email=$1"
-	insertUser                   = "insert into users(firstname, lastname, tel, email, role, password) values ($1,$2,$3,$4,$5,$6)" // TODO
+	insertUser                   = "insert into users(firstname, lastname, tel, email, password) values ($1,$2,$3,$4,$5)"
 	startPasswordRenewal         = "insert into password_renewal(email,token) values($1,$2)"
 	updateLastVisit              = "update users set lastVisit=$1 where email=$2"
 	updateUserProfile            = "update users set firstname=$1, lastname=$2, tel=$3 where email=$4"
@@ -32,35 +33,27 @@ var (
 	replaceJuryInDefenses        = "update defenseJuries set jury=$2 where jury=$1"
 	selectAlias                  = "select real from aliases where email=$1"
 	insertAlias                  = "insert into aliases(email,real) values($1,$2)"
+	insertRole                   = "insert into roles(id) values($1)"
+	insertUserRole               = "insert into userroles(user,role) values($1,$2)"
 )
 
-//addUser add the given user.
-//Every strings are turned into their lower case version
+//addUser add the given user
+//Every strings are turned into their lower case version // where?
 func (s *Store) addUser(tx *TxErr, u schema.User) {
-	if !strings.Contains(u.Person.Email, "@") {
+	if !validEmail(u.Person.Email) {
 		tx.err = schema.ErrInvalidEmail
 		return
 	}
-	//Check if aliased name (this email corresponds to another real email)
-	var em string
-	err := tx.QueryRow(selectAlias, u.Person.Email).Scan(&em)
-	if err == nil {
-		//There is already a user. The proposed email was just an alias
-		tx.err = schema.ErrUserExists
-	} else {
-		if err != sql.ErrNoRows {
-			tx.err = err
-		}
-	}
+	tx.err = checkAliasExists(tx, u.Person.Email)
 	tx.Exec(insertUser,
 		u.Person.Firstname,
 		u.Person.Lastname,
 		u.Person.Tel,
 		u.Person.Email,
-		u.Role.String(), // TODO
 		randomBytes(32),
 	)
 	tx.Exec(insertAlias, u.Person.Email, u.Person.Email)
+	s.addRolesToUser(tx, u.Person.Email, u.Roles)
 }
 
 //Visit writes the current time for the given user
@@ -283,19 +276,22 @@ func (s *Store) NewPassword(token, newP []byte) (string, error) {
 	return email, tx.Done()
 }
 
-//NewUser add a user
-//Basically, calls addUser
+//NewUser add a user from a Person and roles
+//Basically, calls addUser // no it does not
 func (s *Store) NewUser(p schema.Person, roles []schema.Role) ([]byte, error) {
 	if !validEmail(p.Email) {
 		return []byte{}, schema.ErrInvalidEmail
 	}
 	token := randomBytes(32)
 	tx := newTxErr(s.db)
-	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, roles.String(), randomBytes(32)) // TODO
+	tx.err = checkAliasExists(&tx, p.Email)
+	nb := tx.Update(insertUser, p.Firstname, p.Lastname, p.Tel, p.Email, randomBytes(32))
 	if nb == 0 {
 		tx.err = schema.ErrUserExists
 	}
-	tx.Exec(startPasswordRenewal, p.Email, token)
+	tx.Exec(insertAlias, p.Email, p.Email)
+	tx.Exec(startPasswordRenewal, p.Email, token) // why?
+	s.addRolesToUser(&tx, p.Email, roles)
 	return token, tx.Done()
 }
 
@@ -330,6 +326,7 @@ func (s *Store) ReplaceUserWith(src, dst string) error {
 	return tx.Done()
 }
 
+//TODO review semantics
 func validEmail(em string) bool {
 	if !strings.Contains(em, "@") {
 		return false
@@ -340,4 +337,35 @@ func validEmail(em string) bool {
 		}
 	}
 	return true
+}
+
+//checkAliasExists checks if aliased name (this email corresponds to another real email)
+func checkAliasExists(tx *TxErr, email string) error {
+	var em string
+	err := tx.QueryRow(selectAlias, email).Scan(&em)
+	if err == nil {
+		//There is already a user. The proposed email was just an alias
+		tx.err = schema.ErrUserExists
+	} else {
+		if err != sql.ErrNoRows {
+			tx.err = err
+		}
+	}
+	return tx.err
+}
+
+//addRolesToUser adds roles to a user
+//creates the role if it does not exist
+func (s *Store) addRolesToUser(tx *TxErr, email string, roles []schema.Role) error {
+	if len(roles) > 1 && util.IntInSlice(schema.StudentLevel, rolesToInts(roles)) {
+		return schema.ErrRolesConflict
+	}
+	allRoles, _ := s.Roles()
+	for _, r := range removeDuplicateRoles(roles) {
+		if !util.IntInSlice(r.Level(), rolesToInts(allRoles)) {
+			tx.Exec(insertRole, r.String())
+		}
+		tx.Exec(insertUserRole, email, r)
+	}
+	return tx.err
 }
