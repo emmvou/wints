@@ -25,7 +25,7 @@ func status(not *notifier.Notifier, w http.ResponseWriter, r *http.Request, e er
 	case feeder.ErrAuthorization:
 		http.Error(w, "Unable to fetch the conventions from the server: "+e.Error(), http.StatusUnauthorized)
 		return
-	case ErrMalformedJSON, schema.ErrInvalidSurvey, schema.ErrInvalidAlumniEmail, schema.ErrInvalidEmail, schema.ErrDeadlinePassed, schema.ErrInvalidGrade, schema.ErrInvalidMajor, schema.ErrInvalidPromotion, schema.ErrInvalidPeriod, schema.ErrGradedReport, schema.ErrPasswordTooShort:
+	case ErrMalformedJSON, schema.ErrInvalidSurvey, schema.ErrInvalidAlumniEmail, schema.ErrInvalidEmail, schema.ErrDeadlinePassed, schema.ErrInvalidGrade, schema.ErrInvalidGroup, schema.ErrInvalidPeriod, schema.ErrGradedReport, schema.ErrPasswordTooShort:
 		http.Error(w, e.Error(), http.StatusBadRequest)
 		return
 	case session.ErrPermission:
