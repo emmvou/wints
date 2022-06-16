@@ -8,7 +8,7 @@ import (
 
 //Survey get the given survey for a student if the emitter is the student tutor or a major admin at least
 func (s *Session) Survey(student, kind string) (schema.SurveyHeader, error) {
-	if s.Tutoring(student) || schema.IsRoleAtLeast(s.RolesAsLevel(), schema.MajorLevel) {
+	if s.Tutoring(student) || schema.IsRoleAtLeast(s.RolesAsLevel(), schema.SupervisorLevel) {
 		return s.store.Survey(student, kind)
 	}
 	return schema.SurveyHeader{}, ErrPermission
