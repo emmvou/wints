@@ -35,7 +35,7 @@ func (s *Session) SetUserPerson(p schema.Person) error {
 }
 
 //SetUserRole changes the user privileges if the emitter is an admin at minimum and not himself
-func (s *Session) SetUserRole(email string, priv schema.Role) error {
+func (s *Session) SetUserRole(email string, priv []schema.Role) error {
 	if schema.IsAdminAtLeast(s.RolesAsLevel()) && !s.Myself(email) {
 		return s.store.SetUserRole(email, priv)
 	}

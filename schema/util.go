@@ -13,3 +13,15 @@ func IsRoleAtLeast(roles []int, level int) bool {
 func IsRole(roles []int, level int) bool {
 	return util.AnyI(roles, func(r int) bool { return r == level })
 }
+
+func rolesAsLevel(user *User) []int {
+	var roles []int
+	for _, r := range user.Roles {
+		roles = append(roles, r.Level())
+	}
+	return roles
+}
+
+func IsStudent(user *User) bool {
+	return IsRole(rolesAsLevel(user), StudentLevel)
+}

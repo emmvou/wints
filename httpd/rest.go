@@ -235,7 +235,7 @@ func setUserRole(ex Exchange) error {
 	if err := ex.inJSON(&p); err != nil {
 		return err
 	}
-	r := schema.Role(p)
+	r := []schema.Role{schema.Role(p)}
 	err := ex.s.SetUserRole(ex.V("u"), r)
 	ex.not.PrivilegeUpdated(ex.s.Me(), ex.V("u"), r, err)
 	if err == nil {

@@ -3,6 +3,8 @@ package schema
 import "errors"
 
 var (
+	//ErrRoleStudent declares the role cannot be changed when it is student
+	ErrRoleStudent = errors.New("cannot change role when role is student")
 	//ErrUnknownStudent declares the student is unknown
 	ErrUnknownStudent = errors.New("Unknown student")
 	//ErrRolesConflict declares the user cannot have multiple roles when one of them is student

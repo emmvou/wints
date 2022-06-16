@@ -19,7 +19,6 @@ var (
 	startPasswordRenewal         = "insert into password_renewal(email,token) values($1,$2)"
 	updateLastVisit              = "update users set lastVisit=$1 where email=$2"
 	updateUserProfile            = "update users set firstname=$1, lastname=$2, tel=$3 where email=$4"
-	updateUserRole               = "update users set role=$2 where email=$1 and role != 'student'" //cannot change the role of a student // TODO
 	updateUserPassword           = "update users set password=$2 where email=$1"
 	updateEmail                  = "update users set email=$2 where email=$1"
 	deletePasswordRenewalRequest = "delete from password_renewal where email=$1"
@@ -235,9 +234,24 @@ func (s *Store) SetUserPerson(p schema.Person) error {
 	return s.singleUpdate(updateUserProfile, schema.ErrUnknownUser, p.Firstname, p.Lastname, p.Tel, p.Email)
 }
 
-//SetUserRole updates the user privilege
-func (s *Store) SetUserRole(email string, priv schema.Role) error {
-	return s.singleUpdate(updateUserRole, schema.ErrUnknownUser, email, priv) // TODO
+//SetUserRole purges then adds the given roles to the user
+func (s *Store) SetUserRole(email string, priv []schema.Role) error {
+	user, err := s.User(email)
+	if err != nil {
+		return err
+	}
+	if schema.IsStudent(&user) {
+		return schema.ErrRoleStudent
+	}
+	err = s.PurgeUserRoles(email)
+	if err != nil {
+		return err
+	}
+	err = s.AddUserRoles(email, priv)
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 //AddUserRoles adds new roles to a user

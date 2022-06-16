@@ -98,8 +98,8 @@ func (n *Notifier) Logout(s schema.User, err error) {
 }
 
 //PrivilegeUpdated logs the action and notify the target
-func (n *Notifier) PrivilegeUpdated(from schema.User, em string, p schema.Role, err error) error {
-	userLog(from, "'"+string(p)+"' privileges for "+em, err)
+func (n *Notifier) PrivilegeUpdated(from schema.User, em string, p []schema.Role, err error) error {
+	userLog(from, "'"+concatRoles(p)+"' privileges for "+em, err)
 	if err != nil {
 		return err
 	}
