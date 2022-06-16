@@ -35,14 +35,15 @@ var (
 	insertAlias                  = "insert into aliases(email,real) values($1,$2)"
 	insertRole                   = "insert into roles(id) values($1)"
 	insertUserRole               = "insert into userroles(user,role) values($1,$2)"
+	deleteUserRole               = "delete from userroles where user=$1 and role=$2"
 )
 
 //addUser add the given user
 //Every strings are turned into their lower case version // where?
-func (s *Store) addUser(tx *TxErr, u schema.User) {
+func (s *Store) addUser(tx *TxErr, u schema.User) error {
 	if !validEmail(u.Person.Email) {
 		tx.err = schema.ErrInvalidEmail
-		return
+		return tx.err
 	}
 	tx.err = checkAliasExists(tx, u.Person.Email)
 	tx.Exec(insertUser,
@@ -53,7 +54,8 @@ func (s *Store) addUser(tx *TxErr, u schema.User) {
 		randomBytes(32),
 	)
 	tx.Exec(insertAlias, u.Person.Email, u.Person.Email)
-	s.addRolesToUser(tx, u.Person.Email, u.Roles)
+	tx.err = s.addRolesToUser(tx, u.Person.Email, u.Roles)
+	return tx.err
 }
 
 //Visit writes the current time for the given user
@@ -190,7 +192,6 @@ func (s *Store) Users() ([]schema.User, error) {
 	return users, nil
 }
 
-//Users list all the registered users
 func (s *Store) userRoles() ([]schema.UserRole, error) {
 	var users []schema.UserRole
 	st := s.stmt(allUserRoles)
@@ -237,6 +238,45 @@ func (s *Store) SetUserPerson(p schema.Person) error {
 //SetUserRole updates the user privilege
 func (s *Store) SetUserRole(email string, priv schema.Role) error {
 	return s.singleUpdate(updateUserRole, schema.ErrUnknownUser, email, priv) // TODO
+}
+
+//AddUserRoles adds new roles to a user
+func (s *Store) AddUserRoles(email string, roles []schema.Role) error {
+	user, err := s.User(email)
+	if err != nil {
+		return err
+	}
+	if isOverlapRoles(user.Roles, roles) {
+		return schema.ErrOverlapRoles
+	}
+	tx := newTxErr(s.db)
+	tx.err = s.addRolesToUser(&tx, email, roles)
+	return tx.Done()
+}
+
+//RemoveUserRoles removes existing roles from a user
+func (s *Store) RemoveUserRoles(email string, roles []schema.Role) error {
+	tx := newTxErr(s.db)
+	user, err := s.User(email)
+	if err != nil {
+		return err
+	}
+	if !isSliceInSlice(roles, user.Roles) {
+		return schema.ErrRoleNotPresent
+	}
+	tx.err = s.removeRolesFromUser(&tx, user, roles)
+	return tx.Done()
+}
+
+//PurgeUserRoles removes all roles from a user
+func (s *Store) PurgeUserRoles(email string) error {
+	user, err := s.User(email)
+	if err != nil {
+		return err
+	}
+	tx := newTxErr(s.db)
+	tx.err = s.removeRolesFromUser(&tx, user, user.Roles)
+	return tx.Done()
 }
 
 //ResetPassword starts a reset procedure
@@ -291,7 +331,7 @@ func (s *Store) NewUser(p schema.Person, roles []schema.Role) ([]byte, error) {
 	}
 	tx.Exec(insertAlias, p.Email, p.Email)
 	tx.Exec(startPasswordRenewal, p.Email, token) // why?
-	s.addRolesToUser(&tx, p.Email, roles)
+	tx.err = s.addRolesToUser(&tx, p.Email, roles)
 	return token, tx.Done()
 }
 
@@ -360,12 +400,22 @@ func (s *Store) addRolesToUser(tx *TxErr, email string, roles []schema.Role) err
 	if len(roles) > 1 && util.IntInSlice(schema.StudentLevel, rolesToInts(roles)) {
 		return schema.ErrRolesConflict
 	}
-	allRoles, _ := s.Roles()
+	allroles, _ := s.Roles()
 	for _, r := range removeDuplicateRoles(roles) {
-		if !util.IntInSlice(r.Level(), rolesToInts(allRoles)) {
+		if !util.StringInSlice(r.String(), rolesToStrings(allroles)) {
 			tx.Exec(insertRole, r.String())
 		}
 		tx.Exec(insertUserRole, email, r)
+	}
+	return tx.err
+}
+
+//removeRolesFromUser removes roles from a user
+//verification must be done before calling this function
+//user becomes invalid after this call
+func (s *Store) removeRolesFromUser(tx *TxErr, user schema.User, roles []schema.Role) error {
+	for _, r := range roles {
+		tx.Exec(deleteUserRole, user.Person.Email, r)
 	}
 	return tx.err
 }

@@ -103,7 +103,7 @@ func (s *Store) NewStudent(p schema.Person, group string, male bool) error {
 		Person: p,
 		Roles:  []schema.Role{schema.STUDENT},
 	}
-	s.addUser(&tx, u)
+	tx.err = s.addUser(&tx, u)
 	tx.Update(insertStudent, p.Email, male, group, false)
 	return tx.Done()
 }
