@@ -175,7 +175,7 @@ func main() {
 	//Insecure listen that only redirect
 	go insecureServer(config.Cfg.HTTPd.InsecureListen)
 	fatal("Listening on "+config.Cfg.HTTPd.WWW, nil)
-	httpd := httpd.NewHTTPd(not, store, conventions)
-	err = httpd.Listen()
+	httpd_ := httpd.NewHTTPd(not, store, conventions)
+	err = httpd_.Listen()
 	fatal("Stop listening on "+config.Cfg.HTTPd.WWW, err)
 }

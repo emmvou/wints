@@ -82,11 +82,11 @@ func (s *Store) Students() (schema.Students, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		s, e := scanStudent(rows)
+		s_, e := scanStudent(rows)
 		if e != nil {
 			return students, e
 		}
-		students = append(students, s)
+		students = append(students, s_)
 	}
 	return students, err
 }

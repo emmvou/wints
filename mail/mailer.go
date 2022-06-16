@@ -11,7 +11,7 @@ import (
 
 var (
 	//NONE points a default person
-	NONE = []schema.Person{}
+	NONE []schema.Person
 
 	//cache the templates to speed up spaming
 	cache = make(map[string]*template.Template)
@@ -46,16 +46,16 @@ func fill(path string, data interface{}) ([]byte, error) {
 		return []byte{}, err
 	}
 	var b bytes.Buffer
-	if err := tpl.Execute(&b, data); err != nil {
-		return []byte{}, err
+	if err_ := tpl.Execute(&b, data); err_ != nil {
+		return []byte{}, err_
 	}
 	return b.Bytes(), nil
 }
 
 func emails(persons ...schema.Person) []string {
-	emails := make([]string, 0, 0)
+	emails_ := make([]string, 0, 0)
 	for _, p := range persons {
-		emails = append(emails, p.Email)
+		emails_ = append(emails_, p.Email)
 	}
-	return emails
+	return emails_
 }

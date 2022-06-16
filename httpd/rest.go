@@ -135,13 +135,13 @@ func (ed *EndPoints) openSession(w http.ResponseWriter, r *http.Request) (sessio
 		wipeCookies(w)
 		return session.Session{}, schema.ErrSessionExpired
 	}
-	user, err := ed.store.User(s.Email)
+	user_, err := ed.store.User(s.Email)
 	if err != nil {
 		wipeCookies(w)
 		return session.Session{}, err
 	}
-	ed.store.Visit(user.Person.Email)
-	return session.NewSession(user, ed.store, ed.conventions, ed.organization.Tree), err
+	ed.store.Visit(user_.Person.Email)
+	return session.NewSession(user_, ed.store, ed.conventions, ed.organization.Tree), err
 }
 
 func (ed *EndPoints) anon(fn EndPoint) httptreemux.HandlerFunc {
@@ -362,18 +362,18 @@ func setReportDeadline(ex Exchange) error {
 }
 
 func setReportGrade(ex Exchange) error {
-	var report struct {
+	var report_ struct {
 		Grade   int
 		Comment string
 	}
-	if err := ex.inJSON(&report); err != nil {
+	if err := ex.inJSON(&report_); err != nil {
 		return err
 	}
 	i, err := ex.s.Internship(ex.V("s"))
 	if err != nil {
 		return err
 	}
-	_, err = ex.s.SetReportGrade(ex.V("k"), ex.V("s"), report.Grade, report.Comment)
+	_, err = ex.s.SetReportGrade(ex.V("k"), ex.V("s"), report_.Grade, report_.Comment)
 	return ex.not.ReportReviewed(ex.s.Me(), i.Convention.Student.User, i.Convention.Tutor, ex.V("k"), err)
 }
 
@@ -441,8 +441,8 @@ func requestSurvey(ex Exchange) error {
 	}
 	for _, s := range i.Surveys {
 		if s.Kind == kind {
-			_, err := ex.s.SetSurveyInvitation(stu, kind)
-			return ex.not.SurveyRequest(i.Convention.Supervisor, i.Convention.Tutor, i.Convention.Student, s, err)
+			_, err_ := ex.s.SetSurveyInvitation(stu, kind)
+			return ex.not.SurveyRequest(i.Convention.Supervisor, i.Convention.Tutor, i.Convention.Student, s, err_)
 		}
 	}
 	return schema.ErrUnknownSurvey
@@ -605,13 +605,13 @@ func defenseSessions(ex Exchange) error {
 func (ed *EndPoints) program(ex Exchange) error {
 	p, err := ex.s.DefenseProgram()
 	if err == nil {
-		for i, session := range p {
-			for ii, d := range session.Defenses {
+		for i, s := range p {
+			for ii, d := range s.Defenses {
 				d.Grade = -10
 				d.Student.Alumni = nil
-				session.Defenses[ii] = d
+				s.Defenses[ii] = d
 			}
-			p[i] = session
+			p[i] = s
 		}
 	}
 	return ex.outJSON(p, err)

@@ -65,7 +65,7 @@ func (s *Session) DefenseSessions() ([]schema.DefenseSession, error) {
 	if err != nil {
 		return []schema.DefenseSession{}, err
 	}
-	mine := []schema.DefenseSession{}
+	var mine []schema.DefenseSession
 	for _, session := range sessions {
 		if session.InJury(s.Me().Person.Email) {
 			mine = append(mine, session)

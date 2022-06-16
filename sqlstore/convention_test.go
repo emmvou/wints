@@ -85,8 +85,8 @@ func BenchmarkInternships(t *testing.B) {
 	for i := 0; i < t.N; i++ {
 		ints, err := store.Internships()
 		assert.Nil(t, err)
-		for _, int := range ints {
-			assert.Equal(t, 1, len(int.Surveys))
+		for _, int_ := range ints {
+			assert.Equal(t, 1, len(int_.Surveys))
 		}
 	}
 }

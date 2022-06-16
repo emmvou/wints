@@ -117,12 +117,12 @@ func (f *CsvConventions) scan(group string) ([]schema.Convention, *ImportError) 
 	in.Read()
 
 	for {
-		record, err := in.Read()
+		record, err_ := in.Read()
 		// end-of-file is fitted into err
-		if err == io.EOF {
+		if err_ == io.EOF {
 			break
-		} else if err != nil {
-			ierr.NewWarning("(" + group + ") : " + err.Error())
+		} else if err_ != nil {
+			ierr.NewWarning("(" + group + ") : " + err_.Error())
 			return conventions, ierr
 		}
 		student := cleanPerson(record[stuFn], record[stuLn], record[stuEmail], record[stuTel])
@@ -143,26 +143,26 @@ func (f *CsvConventions) scan(group string) ([]schema.Convention, *ImportError) 
 			Skip:  false,
 			Male:  male,
 		}
-		var lastEdit string = ""
+		lastEdit := ""
 		if record[timestamp] != "" {
 			lastEdit = record[timestamp]
 		} else {
 			lastEdit = record[timestamp-1]
 		}
 
-		ts, err := parseTime("2006-01-02", lastEdit, stu)
-		if err != nil {
-			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
+		ts, err__ := parseTime("2006-01-02", lastEdit, stu)
+		if err__ != nil {
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err__.Error())
 			continue
 		}
-		startTime, err := parseTime("2006-01-02", record[begin], stu)
-		if err != nil {
-			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
+		startTime, err___ := parseTime("2006-01-02", record[begin], stu)
+		if err___ != nil {
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err___.Error())
 			continue
 		}
-		endTime, err := parseTime("2006-01-02", record[end], stu)
-		if err != nil {
-			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err.Error())
+		endTime, err____ := parseTime("2006-01-02", record[end], stu)
+		if err____ != nil {
+			ierr.NewWarning("(" + group + ") " + stu.User.Fullname() + ": " + err____.Error())
 			continue
 		}
 		//The to-valid users

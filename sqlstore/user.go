@@ -152,9 +152,9 @@ func (s *Store) users() ([]schema.User, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		u, err := scanUser(rows)
-		if err != nil {
-			return users, err
+		u, err_ := scanUser(rows)
+		if err_ != nil {
+			return users, err_
 		}
 		users = append(users, u)
 	}
@@ -200,9 +200,9 @@ func (s *Store) userRoles() ([]schema.UserRole, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		u, err := scanUserRole(rows)
-		if err != nil {
-			return users, err
+		u, err_ := scanUserRole(rows)
+		if err_ != nil {
+			return users, err_
 		}
 		users = append(users, u)
 	}
@@ -219,9 +219,9 @@ func (s *Store) Roles() ([]schema.Role, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		r, err := scanRole(rows)
-		if err != nil {
-			return roles, err
+		r, err_ := scanRole(rows)
+		if err_ != nil {
+			return roles, err_
 		}
 		roles = append(roles, r)
 	}

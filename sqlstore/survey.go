@@ -72,15 +72,15 @@ func (s *Store) allSurveys() (map[string][]schema.SurveyHeader, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		stu, s, err := scanSurvey(rows)
-		if err != nil {
-			return res, err
+		stu, su, err_ := scanSurvey(rows)
+		if err_ != nil {
+			return res, err_
 		}
 		surveys, ok := res[stu]
 		if !ok {
 			surveys = make([]schema.SurveyHeader, 0, 0)
 		}
-		surveys = append(surveys, s)
+		surveys = append(surveys, su)
 		res[stu] = surveys
 	}
 	return res, nil
@@ -96,11 +96,11 @@ func (s *Store) Surveys(student string) ([]schema.SurveyHeader, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		_, s, e := scanSurvey(rows)
+		_, s_, e := scanSurvey(rows)
 		if e != nil {
 			return res, e
 		}
-		res = append(res, s)
+		res = append(res, s_)
 	}
 	return res, err
 }

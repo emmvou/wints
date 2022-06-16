@@ -33,7 +33,7 @@ func (ed *HTTPd) survey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-type", "text/html; charset=utf-8")
-	if err := tpl.Execute(w, s); err != nil {
+	if err_ := tpl.Execute(w, s); err_ != nil {
 		logger.Log("event", "survey", "Unable to run the template for '"+kind+"'", err)
 		http.Error(w, "", http.StatusInternalServerError)
 		return

@@ -61,8 +61,7 @@ func (m *SMTP) Send(to schema.Person, tpl string, data interface{}, cc ...schema
 	body, err := fill(path, dta)
 	if err != nil {
 		return err
-	}
-	if err == nil {
+	} else {
 		err = m.sendMail(to.Email, emails(cc...), body)
 	}
 	buf := fmt.Sprintf("sending '%s' to %s (cc %s)", tpl, to.Email, emails(cc...))

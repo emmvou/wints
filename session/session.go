@@ -14,7 +14,7 @@ import (
 
 var (
 	//ErrPermission indicates an operation that is not permitted
-	ErrPermission = errors.New("Permission denied")
+	ErrPermission = errors.New("permission denied")
 )
 
 //Session restricts the operation that can be executed by the current user with regards

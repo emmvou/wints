@@ -20,7 +20,7 @@ func rolesToStrings(roles []schema.Role) []string {
 
 func removeDuplicateRoles(strSlice []schema.Role) []schema.Role {
 	allKeys := make(map[schema.Role]bool)
-	list := []schema.Role{}
+	var list []schema.Role
 	for _, item := range strSlice {
 		if _, value := allKeys[item]; !value {
 			allKeys[item] = true

@@ -140,9 +140,9 @@ func (s *Store) conventions() ([]schema.Convention, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		c, err := scanConvention(rows)
-		if err != nil {
-			return conventions, err
+		c, err_ := scanConvention(rows)
+		if err_ != nil {
+			return conventions, err_
 		}
 		conventions = append(conventions, c)
 	}
@@ -178,9 +178,9 @@ func (s *Store) Internships() (schema.Internships, error) {
 		if ok {
 			i.Defense = d
 		}
-		s, ok := surveys[stu]
+		s_, ok := surveys[stu]
 		if ok {
-			i.Surveys = s
+			i.Surveys = s_
 		}
 		r, ok := reports[stu]
 		if ok {
