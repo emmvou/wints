@@ -38,7 +38,7 @@ func NewSession(u schema.User, store *sqlstore.Store, conventions feeder.Convent
 
 //RmSession delete the session if the emitter is the session owner or at least an admin
 func (s *Session) RmSession(em string) error {
-	if s.Myself(em) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(em) || s.isAdminAtLeast() {
 		return s.store.RmSession(em)
 	}
 	return ErrPermission
@@ -98,7 +98,7 @@ func (s *Session) Watching(student string) bool {
 //JuryOf checks if I am in a jury for a defense.
 //That if indeed I am in the jury, or an admin
 func (s *Session) JuryOf(student string) bool {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return true
 	}
 	def, err := s.store.Defense(student)

@@ -22,7 +22,7 @@ func (s *Session) SetReportContent(kind, email string, cnt []byte) (time.Time, e
 
 //SetReportGrade set the report grade if the emitter is the student tutor or an admin at minimum
 func (s *Session) SetReportGrade(kind, email string, g int, comment string) (time.Time, error) {
-	if s.Tutoring(email) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Tutoring(email) || s.isAdminAtLeast() {
 		return s.store.SetReportGrade(kind, email, g, comment)
 	}
 	return time.Time{}, ErrPermission
@@ -30,7 +30,7 @@ func (s *Session) SetReportGrade(kind, email string, g int, comment string) (tim
 
 //SetReportDeadline changes the report deadline if the emitter tutors the student or is an admin at minimum
 func (s *Session) SetReportDeadline(kind, email string, t time.Time) error {
-	if s.Tutoring(email) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Tutoring(email) || s.isAdminAtLeast() {
 		return s.store.SetReportDeadline(kind, email, t)
 	}
 	return ErrPermission
@@ -38,7 +38,7 @@ func (s *Session) SetReportDeadline(kind, email string, t time.Time) error {
 
 //SetReportPrivacy changes the report privacy status if the emitter tutors the student or is an admin at minimum
 func (s *Session) SetReportPrivacy(kind, email string, p bool) error {
-	if s.Tutoring(email) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Tutoring(email) || s.isAdminAtLeast() {
 		return s.store.SetReportPrivacy(kind, email, p)
 	}
 	return ErrPermission

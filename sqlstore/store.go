@@ -22,7 +22,7 @@ type Store struct {
 	cache     *schema.Internships
 }
 
-//NewStore initiate the storage servive
+//NewStore initiate the storage service
 func NewStore(d *sql.DB, config config.Internships) (*Store, error) {
 	s := Store{
 		db:        d,

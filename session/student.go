@@ -6,7 +6,7 @@ import (
 
 //SetStudentSkippable change the skippable status if the emitter is a major leader at minimum
 func (s *Session) SetStudentSkippable(em string, st bool) error {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.store.SetStudentSkippable(em, st)
 	}
 	return ErrPermission

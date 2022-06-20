@@ -7,7 +7,7 @@ import (
 
 //Conventions lists the conventions if the emitter is an admin at minimum
 func (s *Session) Conventions() ([]schema.Convention, *feeder.ImportError) {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.conventions.Import()
 	}
 	ierr := feeder.NewImportError()
@@ -17,7 +17,7 @@ func (s *Session) Conventions() ([]schema.Convention, *feeder.ImportError) {
 
 //Convention returns the convention of a given student if the emitter is the student or at least an admin
 func (s *Session) Convention(stu string) (schema.Convention, error) {
-	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || s.isAdminAtLeast() {
 		return s.store.Convention(stu)
 	}
 	return schema.Convention{}, ErrPermission
@@ -25,7 +25,7 @@ func (s *Session) Convention(stu string) (schema.Convention, error) {
 
 //SetSupervisor changes the supervisor if the emitter is the student or an admin at minimum
 func (s *Session) SetSupervisor(stu string, sup schema.Person) error {
-	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || s.isAdminAtLeast() {
 		return s.store.SetSupervisor(stu, sup)
 	}
 	return ErrPermission
@@ -33,7 +33,7 @@ func (s *Session) SetSupervisor(stu string, sup schema.Person) error {
 
 //SetTutor changes the tutor if the emitter is an admin at minimum
 func (s *Session) SetTutor(stu string, t string) error {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.store.SetTutor(stu, t)
 	}
 	return ErrPermission
@@ -41,7 +41,7 @@ func (s *Session) SetTutor(stu string, t string) error {
 
 //SetCompany changes the company if the emitter is the student or an admin at minimum
 func (s *Session) SetCompany(stu string, c schema.Company) error {
-	if s.Myself(stu) || schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.Myself(stu) || s.isAdminAtLeast() {
 		return s.store.SetCompany(stu, c)
 	}
 	return ErrPermission
@@ -49,7 +49,7 @@ func (s *Session) SetCompany(stu string, c schema.Company) error {
 
 //NewInternship validates the convention if the emitter is an admin at minimum
 func (s *Session) NewInternship(c schema.Convention) (schema.Internship, []byte, error) {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.store.NewInternship(c)
 	}
 	return schema.Internship{}, []byte{}, ErrPermission

@@ -16,7 +16,7 @@ func (s *Session) Survey(student, kind string) (schema.SurveyHeader, error) {
 
 //ResetSurvey if the emitter is at least an administrator
 func (s *Session) ResetSurvey(student, kind string) error {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.store.ResetSurveyContent(student, kind)
 	}
 	return ErrPermission
@@ -24,7 +24,7 @@ func (s *Session) ResetSurvey(student, kind string) error {
 
 //SetSurveyInvitation is ok if the emitter is at least an administrator
 func (s *Session) SetSurveyInvitation(student, kind string) (time.Time, error) {
-	if schema.IsAdminAtLeast(s.RolesAsLevel()) {
+	if s.isAdminAtLeast() {
 		return s.store.SetSurveyInvitation(student, kind)
 	}
 	return time.Time{}, ErrPermission
