@@ -138,14 +138,13 @@
     <inspection_tool class="GoRedundantTypeDeclInCompositeLit" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoReservedWordUsedAsName" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoSelfAssignment" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="GoShadowedVar" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="GoShadowedVar" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GoShift" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoSnakeCaseUsage" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoStandardMethods" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoStringsReplaceCount" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoStructInitializationWithoutFieldNames" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoTestName" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="GoUnhandledErrorResult" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoUnitSpecificDurationSuffix" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoUnnecessarilyExportedIdentifiers" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="GoUnreachableCode" enabled="true" level="ERROR" enabled_by_default="true" />
@@ -338,7 +337,7 @@
     </inspection_tool>
     <inspection_tool class="ReservedWordUsedAsNameJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="ReturnFromFinallyBlockJS" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="SSBasedInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="SSBasedInspection" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ShellCheck" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="ShiftOutOfRangeJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SillyAssignmentJS" enabled="false" level="WARNING" enabled_by_default="false" />
