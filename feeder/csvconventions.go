@@ -18,11 +18,12 @@ const (
 	stuPromotion    = 1
 	foreignCountry  = 41
 	lab             = 40
-	gender          = 63
-	stuFn           = 65
-	stuLn           = 64
-	stuEmail        = 67
-	stuTel          = 69
+	signe           = 63
+	gender          = 64
+	stuFn           = 66
+	stuLn           = 65
+	stuEmail        = 68
+	stuTel          = 70
 	company         = 11
 	companyWWW      = 2
 	begin           = 26
@@ -37,7 +38,7 @@ const (
 	tutorLn         = 53
 	tutorEmail      = 55
 	tutorTel        = 56
-	numUNS          = 66
+	numUNS          = 67
 )
 
 var (
