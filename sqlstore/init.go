@@ -31,11 +31,11 @@ create table roles(
 );
 
 create table userroles(
-	user text,
+	user_ text,
 	role text,
-	constraint fk_userroles_user FOREIGN KEY(user) REFERENCES users(email),
+	constraint fk_userroles_user FOREIGN KEY(user_) REFERENCES users(email),
 	constraint fk_userroles_role FOREIGN KEY(role) REFERENCES roles(id),
-	constraint pk_userroles PRIMARY KEY(user, role)	
+	constraint pk_userroles PRIMARY KEY(user_, role)	
 );
 
 create table aliases(
@@ -61,8 +61,7 @@ create table password_renewal(
 
 create table students(
     email text,
-    major text,
-    promotion text,
+	group_ text,
     nextPosition text,
     nextFrance boolean,
     nextSameCompany boolean,

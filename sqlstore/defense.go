@@ -22,7 +22,12 @@ var (
 	deleteDefenseSession          = "delete from defensesessions where room=$1 and id=$2"
 	insertJuryToDefense           = "insert into defensejuries(room, id, jury) values($1,$2,$3)"
 	deleteJuryToDefense           = "delete from defensejuries where room=$1 and id=$2 and jury=$3"
-	selectJury                    = "select us.firstname, us.lastname, us.tel, us.email, us.role, us.lastVisit from defensejuries inner join users as us on (us.email = jury) where room=$1 and id=$2"
+	selectJury                    = "select us.firstname, us.lastname, us.tel, us.email, ARRAY_AGG (ur.role) roles, us.lastVisit " +
+		"from defensejuries " +
+		"inner join users as us on (us.email = jury) " +
+		"join userroles ur on us.email = ur.user_ " +
+		"where room=$1 and id=$2 " +
+		"group by us.firstname, us.lastname, us.tel, us.email, us.lastVisit"
 )
 
 //SetDefenseGrade set the defense grade
@@ -160,15 +165,17 @@ func (s *Store) DefenseSession(room, id string) (schema.DefenseSession, error) {
 	defer rows2.Close()
 	for rows2.Next() {
 		var last pq.NullTime
+		var roles []string
 		u := schema.User{Person: schema.Person{}}
-		var role string
 		err := rows2.Scan(&u.Person.Firstname,
 			&u.Person.Lastname,
 			&u.Person.Tel,
 			&u.Person.Email,
-			&role,
+			pq.Array(&roles),
 			&last)
-		u.Roles = []schema.Role{schema.Role(role)}
+		for _, r := range roles {
+			u.Roles = append(u.Roles, schema.Role(r))
+		}
 		u.LastVisit = nullableTime(last)
 		if err != nil {
 			return session, err

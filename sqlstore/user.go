@@ -14,7 +14,11 @@ import (
 )
 
 var (
-	selectUser                   = "select firstname, lastname, email, tel, lastVisit from users where email=$1"
+	selectUser = "select u.firstname, u.lastname, u.email, u.tel, ARRAY_AGG (ur.role) roles, u.lastVisit " +
+		"from users u " +
+		"join userroles ur on u.email = ur.user_ " +
+		"where u.email=$1 " +
+		"group by u.firstname, u.lastname, u.email, u.tel, u.lastVisit"
 	insertUser                   = "insert into users(firstname, lastname, tel, email, password) values ($1,$2,$3,$4,$5)"
 	startPasswordRenewal         = "insert into password_renewal(email,token) values($1,$2)"
 	updateLastVisit              = "update users set lastVisit=$1 where email=$2"
@@ -24,7 +28,7 @@ var (
 	deletePasswordRenewalRequest = "delete from password_renewal where email=$1"
 	deleteUser                   = "DELETE FROM users where email=$1"
 	allUsers                     = "select u.firstname, u.lastname, u.email, u.tel, u.lastVisit from users u"
-	allUserRoles                 = "select u.email, r.role from users u join userroles ur on u.email=ur.user join roles r on ur.role=r.id"
+	allUserRoles                 = "select u.email, r.role from users u join userroles ur on u.email=ur.user_ join roles r on ur.role=r.id"
 	allRoles                     = "select role from roles"
 	selectPassword               = "select password from users where email=$1"
 	emailFromRenewableToken      = "select email from password_renewal where token=$1"
@@ -33,8 +37,8 @@ var (
 	selectAlias                  = "select real from aliases where email=$1"
 	insertAlias                  = "insert into aliases(email,real) values($1,$2)"
 	insertRole                   = "insert into roles(id) values($1)"
-	insertUserRole               = "insert into userroles(user,role) values($1,$2)"
-	deleteUserRole               = "delete from userroles where user=$1 and role=$2"
+	insertUserRole               = "insert into userroles(user_,role) values($1,$2)"
+	deleteUserRole               = "delete from userroles where user_=$1 and role=$2"
 )
 
 //addUser add the given user
@@ -74,9 +78,12 @@ func scanUser(row *sql.Rows) (schema.User, error) {
 		&u.Person.Lastname,
 		&u.Person.Email,
 		&u.Person.Tel,
+		pq.Array(&roles),
 		&last,
-		&roles,
 	)
+	for _, r := range roles {
+		u.Roles = append(u.Roles, schema.Role(r))
+	}
 	u.LastVisit = nullableTime(last)
 	return u, err
 }
@@ -121,24 +128,6 @@ func (s *Store) User(email string) (schema.User, error) {
 	if err != nil {
 		return schema.User{}, err
 	}
-	roles, err := s.Roles()
-	if err != nil {
-		return schema.User{}, err
-	}
-	userRoles, err := s.userRoles()
-	if err != nil {
-		return schema.User{}, err
-	}
-	// yes, this is a bit ugly, but it's the only way to do it
-	for _, ur := range userRoles {
-		if ur.User == user.Person.Email {
-			for _, r := range roles {
-				if r.String() == ur.Role.String() {
-					user.Roles = append(user.Roles, r)
-				}
-			}
-		}
-	}
 
 	return user, nil
 }
@@ -166,26 +155,6 @@ func (s *Store) Users() ([]schema.User, error) {
 	users, err := s.users()
 	if err != nil {
 		return []schema.User{}, err
-	}
-	roles, err := s.Roles()
-	if err != nil {
-		return []schema.User{}, err
-	}
-	userRoles, err := s.userRoles()
-	if err != nil {
-		return []schema.User{}, err
-	}
-	// yes, this is a bit ugly, but it's the only way to do it
-	for _, u := range users {
-		for _, ur := range userRoles {
-			if ur.User == u.Person.Email {
-				for _, r := range roles {
-					if r.String() == ur.Role.String() {
-						u.Roles = append(u.Roles, r)
-					}
-				}
-			}
-		}
 	}
 
 	return users, nil

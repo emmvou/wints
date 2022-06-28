@@ -9,11 +9,16 @@ import (
 )
 
 var (
-	allStudents   = "select male, firstname, lastname, users.email, tel, role, lastVisit, group, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email)"
-	selectStudent = "select male, firstname, lastname, users.email, tel, role, lastVisit, group, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip from students inner join users on (students.email=users.email) where students.email=$1"
-	insertStudent = "insert into students(email, male, group, skip) values ($1,$2,$3,$4,$5)"
+	allStudents = "select male, firstname, lastname, tel, lastVisit, group_, nextPosition, nextFrance, nextPermanent,nextSameCompany, nextContact, skip " +
+		"from students " +
+		"inner join users on (students.email=users.email)"
+	selectStudent = "select male, firstname, lastname, users.email, tel, lastVisit, group_, nextPosition, nextFrance,nextPermanent,nextSameCompany, nextContact, skip " +
+		"from students " +
+		"inner join users on (students.email=users.email) " +
+		"where students.email=$1"
+	insertStudent = "insert into students(email, male, group_, skip) values ($1,$2,$3,$4,$5)"
 	skipStudent   = "update students set skip=$2 where email=$1"
-	setGroup      = "update students set group=$2 where email=$1"
+	setGroup      = "update students set group_=$2 where email=$1"
 	updateMale    = "update students set male=$2 where email=$1"
 	updateAlumni  = "update students set nextPosition=$1, nextFrance=$2, nextPermanent=$3, nextSameCompany=$4, nextContact=$5 where email=$6"
 )
@@ -37,10 +42,10 @@ func scanStudent(rows *sql.Rows) (schema.Student, error) {
 	var nextPos sql.NullString
 	var nextFrance, nextPermanent, nextSameCompany sql.NullBool
 	var nextContact sql.NullString
-	var role string
 	s := schema.Student{
 		User: schema.User{
 			Person: schema.Person{},
+			Roles:  []schema.Role{schema.STUDENT}, // TODO check if need to put in scan
 		},
 		Alumni: &schema.Alumni{},
 	}
@@ -50,7 +55,6 @@ func scanStudent(rows *sql.Rows) (schema.Student, error) {
 		&s.User.Person.Lastname,
 		&s.User.Person.Email,
 		&s.User.Person.Tel,
-		&role,
 		&lastVisit,
 		&s.Group,
 		&nextPos,
@@ -59,7 +63,6 @@ func scanStudent(rows *sql.Rows) (schema.Student, error) {
 		&nextSameCompany,
 		&nextContact,
 		&s.Skip)
-	s.User.Roles = []schema.Role{schema.Role(role)}
 	s.User.LastVisit = nullableTime(lastVisit)
 	if nextPos.Valid {
 		s.Alumni.Contact = nullableString(nextContact)

@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"database/sql"
+	"github.com/lib/pq"
 	"time"
 
 	"github.com/emmvou/wints/schema"
@@ -12,25 +13,25 @@ var (
 	updateTutor       = "update conventions set tutor=$1 where student=$2"
 	updateCompany     = "update conventions set companyWWW=$1, companyName=$2, title=$3 where student=$4"
 	insertConvention  = "insert into conventions(student, startTime, endTime, tutor, companyName, companyWWW, supervisorFn, supervisorLn, supervisorEmail, supervisorTel, title, creation, foreignCountry, lab, gratification) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)"
-	selectConventions = "select stup.firstname, stup.lastname, stup.tel, stup.email, stup.lastVisit, " +
-		"students.male, students.promotion, students.major, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip," +
-		"tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, tutp.role, " +
-		"startTime, endTime, companyName, companyWWW, title, creation, foreignCountry, lab, gratification, " +
-		"supervisorFn, supervisorLn, supervisorEmail, supervisorTel " +
+	selectConventions = "select stup.firstname, stup.lastname, stup.tel, stup.email, stup.lastVisit, students.male, students.group_, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip, tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, ARRAY_AGG (ur.role) roles, startTime, endTime, companyName, companyWWW, title, creation, foreignCountry, lab, gratification, supervisorFn, supervisorLn, supervisorEmail, supervisorTel " +
 		"from conventions " +
-		" inner join students on (students.email = conventions.student) " +
-		" inner join users as stup on (stup.email = conventions.student)  " +
-		" inner join users as tutp on (tutp.email = conventions.tutor)  "
+		"inner join students on (students.email = conventions.student) " +
+		"inner join users as stup on (stup.email = conventions.student) " +
+		"inner join users as tutp on (tutp.email = conventions.tutor) " +
+		"join userroles ur on tutp.email = ur.user_ " +
+		"group by stup.firstname, stup.lastname, stup.tel, stup.email, stup.lastVisit, students.male, students.group_, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip, tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, startTime, endTime, companyName, companyWWW, title, creation, foreignCountry, lab, gratification, supervisorFn, supervisorLn, supervisorEmail, supervisorTel"
 	selectConvention = "select stup.firstname, stup.lastname, stup.tel, stup.email, stup.lastVisit, " +
-		"students.male, students.promotion, students.major, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip, " +
-		"tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, tutp.role, " +
+		"students.male, students.group_, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip, " +
+		"tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, ARRAY_AGG (ur.role) roles, " +
 		"startTime, endTime, companyName, companyWWW, title, creation, foreignCountry, lab, gratification, " +
 		"supervisorFn, supervisorLn, supervisorEmail, supervisorTel " +
 		"from conventions " +
 		" inner join students on (students.email = conventions.student) " +
 		" inner join users as stup on (stup.email = conventions.student)  " +
 		" inner join users as tutp on (tutp.email = conventions.tutor)  " +
-		" where stup.email=$1"
+		"join userroles ur on tutp.email = ur.user_ " +
+		"where stup.email=$1 " +
+		"group by stup.firstname, stup.lastname, stup.tel, stup.email, stup.lastVisit, students.male, students.group_, students.nextPosition, students.nextFrance, students.nextPermanent, students.nextSameCompany, students.nextContact, students.skip, tutp.firstname, tutp.lastname, tutp.tel, tutp.email, tutp.lastVisit, startTime, endTime, companyName, companyWWW, title, creation, foreignCountry, lab, gratification, supervisorFn, supervisorLn, supervisorEmail, supervisorTel"
 	insertReport = "insert into reports(student, kind, deadline, private, toGrade) values($1,$2,$3,$4,$5)"
 	insertSurvey = "insert into surveys(student, kind, token, invitation, lastInvitation, deadline) values($1,$2,$3,$4,$5,$6)"
 )
@@ -227,7 +228,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 	var nextContact sql.NullString
 	var nextPosition sql.NullString
 	var nextFrance, nextPermanent, nextSameCompany sql.NullBool
-	var role string
+	var roles []string
 	c := schema.Convention{
 		Student: schema.Student{
 			User: schema.User{
@@ -238,6 +239,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 		},
 		Tutor: schema.User{
 			Person: schema.Person{},
+			Roles:  []schema.Role{},
 		},
 		Supervisor: schema.Person{},
 		Company:    schema.Company{},
@@ -261,7 +263,7 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 		&c.Tutor.Person.Tel,
 		&c.Tutor.Person.Email,
 		&c.Tutor.LastVisit,
-		&role,
+		pq.Array(&roles),
 		&c.Begin,
 		&c.End,
 		&c.Company.Name,
@@ -276,11 +278,13 @@ func scanConvention(rows *sql.Rows) (schema.Convention, error) {
 		&c.Supervisor.Email,
 		&c.Supervisor.Tel,
 	)
+	for _, r := range roles {
+		c.Tutor.Roles = append(c.Tutor.Roles, schema.Role(r))
+	}
 	c.Begin = c.Begin.UTC()
 	c.End = c.End.UTC()
 	c.Creation = c.Creation.UTC()
 
-	c.Tutor.Roles = []schema.Role{schema.Role(role)}
 	if !nextPosition.Valid {
 		c.Student.Alumni = nil
 	} else {
