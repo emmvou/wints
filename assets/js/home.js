@@ -1,12 +1,13 @@
 var config;
 
-var STUDENT_LEVEL = 0;
-var TUTOR_LEVEL = 1;
-var MAJOR_LEVEL = 2;
-var HEAD_LEVEL = 3;
-var ADMIN_LEVEL = 4;
-var ROOT_LEVEL = 5;
-
+const LEVEL = {
+	STUDENT: 0,
+	TUTOR: 1,
+	SUPERVISOR: 2,
+	HEAD: 3,
+	ADMIN: 4,
+	ROOT: 5
+}
 
 String.prototype.capitalize = function() {
 	return this.charAt(0).toUpperCase() + this.substring(1);
@@ -21,35 +22,48 @@ function loadSuccess(data) {
 	$("#fullname").html(myself.Person.Lastname + ", " + myself.Person.Firstname);
 
 	//my options
-	for (i = 0; i <= level(myself.Role); i++) {
+	for (i = 0; i <= levelHighest(myself.Roles); i++) {
 		$(".role-" + i).removeClass("hidden");
 	}
 
 	//homepage
-	if (level(myself.Role) == STUDENT_LEVEL) {
+	if (levelContains(myself.Roles, LEVEL["STUDENT"])) {
 		showStudent();
-	} else if (level(myself.Role) >= MAJOR_LEVEL) {
+	} else if (levelHighest(myself.Roles) >= LEVEL["SUPERVISOR"]) {
 		showWatchlist();
 	} else {
 		showTutored();
 	}
 }
 
-function level(role) {
-	if (role == "student") {
-		return STUDENT_LEVEL;
-	} else if (role == "tutor") {
-		return TUTOR_LEVEL;
-	} else if (role.indexOf("major") === 0) {
-		return MAJOR_LEVEL;
-	} else if (role == "head") {
-		return HEAD_LEVEL;
-	} else if (role == "admin") {
-		return ADMIN_LEVEL;
-	} else if (role == "root") {
-		return ROOT_LEVEL;
+function getLevel(role){
+	//because "supervisor" can have a suffix after "-"
+	return LEVEL[role.match(/([A-Za-z])*/)[0].toUpperCase()];
+}
+
+function allLevels(roles){
+	var levels = [];
+	for (i = 0; i < roles.length; i++) {
+		levels.push(getLevel(roles[i]));
 	}
-	return -1;
+	return levels;
+}
+
+function levelContains(roles, role) {
+	for (i = 0; i < roles.length; i++) {
+		if (getLevel(roles[i]) == role) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function levelHighest(roles) {
+	max = Number.NEGATIVE_INFINITY;
+	for (i = 0; i < roles.length; i++) {
+		max = Math.max(max, getLevel(roles[i]));
+	}
+	return max;
 }
 
 function showModal(next) {
@@ -141,15 +155,15 @@ function updateInternshipRow(em) {
 }
 
 function showInternship(em, edit) {
-	if (!edit || level(myself.Role) < ADMIN_LEVEL) {
+	if (!edit || levelHighest(myself.Roles) < LEVEL["ADMIN"]) {
 		internship(em).done(function(i) {
-			internshipModal(i, [], edit && level(myself.Role) >= ADMIN_LEVEL);
+			internshipModal(i, [], edit && levelHighest(myself.Roles) >= LEVEL["ADMIN"]);
 		}).fail(logFail);
 	} else {
 		$.when(internship(em), users()).done(function(i, uss) {
 			i = i[0];
 			uss = uss[0].filter(function(u) {
-				return level(u.Role) != STUDENT_LEVEL && u.Person.Email != i.Convention.Tutor.Person.Email;
+				return !levelContains(u.Roles, LEVEL["STUDENT"]) && u.Person.Email != i.Convention.Tutor.Person.Email;
 			});
 			internshipModal(i, uss, edit);
 		}).fail(logFail);

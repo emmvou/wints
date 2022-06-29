@@ -103,7 +103,7 @@ function loadUsers(uss, ints) {
 	});
 	var allUsers = uss[0];
 	allUsers.forEach(function(u, idx) {
-		allUsers[idx].Resetable = (level(u.Role) != STUDENT_LEVEL || got[u.Person.Email]);
+		allUsers[idx].Resetable = (!levelContains(u.Roles, LEVEL["STUDENT"]) || got[u.Person.Email]);
 		allUsers[idx].Blocked = blocked[u.Person.Email];
 	});
 	$("#cnt").render("users-header", allUsers, usersUI);

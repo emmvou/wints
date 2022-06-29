@@ -3,7 +3,7 @@ var allStudents, allConventions, allTeachers;
 var feederWarning = false;
 function showConventionValidator() {
 	showWait();
-	if (level(myself.Role) >= ADMIN_LEVEL) {
+	if (levelHighest(myself.Roles) >= LEVEL["ADMIN"]) {
 		$.when(students(), internships(), conventions(), users()).done(loadConventionValidator).fail(function(xhr) {
 			if (xhr.responseText.indexOf("feeder")) {
 				//conventions() failed, so, an error message and we retry without this call
@@ -76,7 +76,7 @@ function loadConventionValidator(students, internships, convs, us) {
 			us = [];
 		}
 		allTeachers = us.filter(function(u) { 
-			return level(u.Role) != STUDENT_LEVEL;
+			return !levelContains(u.Roles, LEVEL["STUDENT"]);
 		});		
 	}	
 	allTeachers.sort(userSort);	
@@ -99,7 +99,7 @@ function loadConventionValidator(students, internships, convs, us) {
 }
 
 function conventionValidator(em) {
-	if (level(myself.Role) < ADMIN_LEVEL) {
+	if (levelHighest(myself.Roles) < LEVEL["ADMIN"]) {
 		notifyError("Only an admin can validate a convention");
 		return
 	}

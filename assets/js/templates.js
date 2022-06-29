@@ -46,10 +46,10 @@ Handlebars.registerHelper('alumniPosition', function(r) {
 });
 
 
-var roles = ["student", "tutor", "major", "head", "admin", "root"];
+var roles = ["student", "tutor", "supervisor", "head", "admin", "root"];
 
 Handlebars.registerHelper('roleLevel', function(r) {
-	return level(r);
+	return allLevels(r);
 });
 Handlebars.registerHelper('optionRoles', function(r) {
 	var res = "";
@@ -182,14 +182,14 @@ Handlebars.registerHelper('ifAfter', function(d1, d2, opts) {
 });
 
 Handlebars.registerHelper('ifRole', function(d, opts) {
-	if (level(myself.Role) >= d)
+	if (levelHighest(myself.Roles) >= d)
 		return opts.fn(this);
 	else
 		return opts.inverse(this);
 });
 
 Handlebars.registerHelper('ifManage', function(r, opts) {
-	if (myself.Person.Email == r.Tutor || level(myself.Role) >= ADMIN_LEVEL) {
+	if (myself.Person.Email == r.Tutor || levelHighest(myself.Roles) >= LEVEL["ADMIN"]) {
 		return opts.fn(this);
 	} else {
 		return opts.inverse(this);

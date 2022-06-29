@@ -13,7 +13,7 @@ const ( //TODO change here
 	StudentLevel int = iota
 	TutorLevel
 	SupervisorLevel
-	HeadLevel
+	HeadLevel // a head must also be a supervisor
 	AdminLevel
 	RootLevel
 
