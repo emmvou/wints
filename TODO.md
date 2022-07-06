@@ -1,3 +1,7 @@
+# TODO _urgent_
+- change csv reader, for now it works with the old format, and only for si5. For now it concatenates the promotion and the major of a student to get their group (with no separator), but the whole group should be given in a single column as the backend treatment already supports it
+- fix frontend (especially when displaying tables of students, consider using one table per group of students)
+
 # TODO
 - wipe conventions once imported
 - do not remove student having a convention
@@ -11,7 +15,7 @@ PENDING statistics
 
 
 
-#Year +1 todo
+# Year +1 todo
 - library for mailing (robustness issues)
 - structured logs to play with
 - generate link for the major head & the tutor to ack the convention
