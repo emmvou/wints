@@ -27,18 +27,21 @@ var (
 	updateEmail                  = "update users set email=$2 where email=$1"
 	deletePasswordRenewalRequest = "delete from password_renewal where email=$1"
 	deleteUser                   = "DELETE FROM users where email=$1"
-	allUsers                     = "select u.firstname, u.lastname, u.email, u.tel, u.lastVisit from users u"
-	allUserRoles                 = "select u.email, r.role from users u join userroles ur on u.email=ur.user_ join roles r on ur.role=r.id"
-	allRoles                     = "select role from roles"
-	selectPassword               = "select password from users where email=$1"
-	emailFromRenewableToken      = "select email from password_renewal where token=$1"
-	replaceTutorInConventions    = "update conventions set tutor=$2 where tutor=$1"
-	replaceJuryInDefenses        = "update defenseJuries set jury=$2 where jury=$1"
-	selectAlias                  = "select real from aliases where email=$1"
-	insertAlias                  = "insert into aliases(email,real) values($1,$2)"
-	insertRole                   = "insert into roles(id) values($1)"
-	insertUserRole               = "insert into userroles(user_,role) values($1,$2)"
-	deleteUserRole               = "delete from userroles where user_=$1 and role=$2"
+	allUsers                     = "select u.firstname, u.lastname, u.email, u.tel, ARRAY_AGG (ur.role) roles, u.lastVisit " +
+		"from users u " +
+		"join userroles ur on u.email = ur.user_ " +
+		"group by u.firstname, u.lastname, u.email, u.tel, u.lastVisit"
+	allUserRoles              = "select u.email, r.role from users u join userroles ur on u.email=ur.user_ join roles r on ur.role=r.id"
+	allRoles                  = "select role from roles"
+	selectPassword            = "select password from users where email=$1"
+	emailFromRenewableToken   = "select email from password_renewal where token=$1"
+	replaceTutorInConventions = "update conventions set tutor=$2 where tutor=$1"
+	replaceJuryInDefenses     = "update defenseJuries set jury=$2 where jury=$1"
+	selectAlias               = "select real from aliases where email=$1"
+	insertAlias               = "insert into aliases(email,real) values($1,$2)"
+	insertRole                = "insert into roles(id) values($1)"
+	insertUserRole            = "insert into userroles(user_,role) values($1,$2)"
+	deleteUserRole            = "delete from userroles where user_=$1 and role=$2"
 )
 
 //addUser add the given user
@@ -122,16 +125,6 @@ func (s *Store) user(email string) (schema.User, error) {
 	return scanUser(rows)
 }
 
-//User returns the given user account
-func (s *Store) User(email string) (schema.User, error) {
-	user, err := s.user(email)
-	if err != nil {
-		return schema.User{}, err
-	}
-
-	return user, nil
-}
-
 func (s *Store) users() ([]schema.User, error) {
 	var users []schema.User
 	st := s.stmt(allUsers)
@@ -148,6 +141,16 @@ func (s *Store) users() ([]schema.User, error) {
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+//User returns the given user account
+func (s *Store) User(email string) (schema.User, error) {
+	user, err := s.user(email)
+	if err != nil {
+		return schema.User{}, err
+	}
+
+	return user, nil
 }
 
 //Users list all the registered users

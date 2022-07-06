@@ -195,8 +195,7 @@ function parseCSV(e) {
 					Email: fields[2].toLowerCase()
 				}
 			},
-			Promotion: among(fields[3].toLowerCase(), config.Promotions),
-			Major: among(fields[4].toLowerCase(), config.Majors)
+			Group: among(fields[3].toLowerCase(), config.Promotions) + among(fields[4].toLowerCase(), config.Majors)
 		};
 		var req = postStudent(p).done(doneStudentImport, true).fail(function(xhr) {
 			failStudentImport(p, xhr)

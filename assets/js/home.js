@@ -21,8 +21,9 @@ function loadSuccess(data) {
 	myself = data;
 	$("#fullname").html(myself.Person.Lastname + ", " + myself.Person.Firstname);
 
+	let highest = levelHighest(myself.Roles);
 	//my options
-	for (i = 0; i <= levelHighest(myself.Roles); i++) {
+	for (i = 0; i <= highest; i++) {
 		$(".role-" + i).removeClass("hidden");
 	}
 

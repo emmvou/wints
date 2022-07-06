@@ -141,7 +141,7 @@ func (ed *EndPoints) openSession(w http.ResponseWriter, r *http.Request) (sessio
 		return session.Session{}, err
 	}
 	ed.store.Visit(user_.Person.Email)
-	return session.NewSession(user_, ed.store, ed.conventions, ed.organization.Tree), err
+	return session.NewSession(user_, ed.store, ed.conventions, ed.organization.Groups), err
 }
 
 func (ed *EndPoints) anon(fn EndPoint) httptreemux.HandlerFunc {
